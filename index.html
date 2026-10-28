@@ -627,7 +627,7 @@ async function loadRecs() {
       <div class="cards">${html}</div>`;
 
     // 첫 번째 카드 차트 자동 렌더
-    requestAnimationFrame(() => requestAnimationFrame(() => renderChart(0)));
+    requestAnimationFrame(() => requestAnimationFrame(() => recs.forEach((_, i) => renderChart(i))));
 
   } catch(e) {
     result.innerHTML = `
