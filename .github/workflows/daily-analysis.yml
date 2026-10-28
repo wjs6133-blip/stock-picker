@@ -22,14 +22,14 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Collect candidates
+      - name: Run full analysis
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/collect_candidates.py
+        run: python scripts/analyze.py
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/candidates.json
-          git diff --staged --quiet || git commit -m "chore: daily candidates update" && git push
+          git add data/recommendations.json
+          git diff --staged --quiet || git commit -m "chore: daily recommendations update" && git push

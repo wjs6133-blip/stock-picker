@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>눌림목 AI 종목 추천</title>
+<script src="https://unpkg.com/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -19,60 +20,50 @@
   header {
     background: #161b22;
     border-bottom: 1px solid #30363d;
-    padding: 18px 28px;
+    padding: 16px 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    flex-wrap: wrap;
     gap: 10px;
+    flex-wrap: wrap;
   }
   .logo { display: flex; align-items: center; gap: 10px; }
   .logo-icon {
-    width: 38px; height: 38px;
+    width: 36px; height: 36px;
     background: linear-gradient(135deg, #238636, #2ea043);
     border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
   }
-  .logo h1 { font-size: 17px; font-weight: 700; }
+  .logo h1 { font-size: 16px; font-weight: 700; }
   .logo p  { font-size: 12px; color: #7d8590; margin-top: 2px; }
   .header-date { font-size: 12px; color: #7d8590; }
 
-  /* ── 버튼 영역 ── */
+  /* ── 히어로 ── */
   .hero {
-    padding: 48px 20px 36px;
+    padding: 44px 20px 32px;
     text-align: center;
   }
-  .hero h2 {
-    font-size: 22px;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .hero p {
-    font-size: 14px;
-    color: #7d8590;
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
+  .hero h2 { font-size: 22px; font-weight: 700; margin-bottom: 8px; }
+  .hero p  { font-size: 14px; color: #7d8590; margin-bottom: 28px; line-height: 1.65; }
 
-  #analyzeBtn {
+  #mainBtn {
     background: linear-gradient(135deg, #238636, #2ea043);
     color: #fff;
     border: none;
     border-radius: 12px;
-    padding: 18px 52px;
+    padding: 17px 52px;
     font-size: 18px;
     font-weight: 700;
     cursor: pointer;
     transition: opacity .2s, transform .1s;
     letter-spacing: -0.3px;
   }
-  #analyzeBtn:hover  { opacity: .88; }
-  #analyzeBtn:active { transform: scale(.97); }
-  #analyzeBtn:disabled { opacity: .45; cursor: not-allowed; }
+  #mainBtn:hover  { opacity: .88; }
+  #mainBtn:active { transform: scale(.97); }
 
   .last-update {
-    margin-top: 14px;
+    margin-top: 12px;
     font-size: 12px;
     color: #484f58;
   }
@@ -82,13 +73,13 @@
     display: none;
     flex-direction: column;
     align-items: center;
-    gap: 14px;
-    padding: 20px;
+    gap: 12px;
+    padding: 18px;
     color: #7d8590;
     font-size: 14px;
   }
   .spinner {
-    width: 40px; height: 40px;
+    width: 36px; height: 36px;
     border: 3px solid #30363d;
     border-top-color: #2ea043;
     border-radius: 50%;
@@ -97,13 +88,13 @@
   @keyframes spin { to { transform: rotate(360deg); } }
 
   /* ── 결과 영역 ── */
-  main { max-width: 860px; margin: 0 auto; width: 100%; padding: 0 20px 48px; }
+  main { max-width: 900px; margin: 0 auto; width: 100%; padding: 0 20px 56px; }
 
   .section-title {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     color: #7d8590;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 8px;
@@ -116,16 +107,17 @@
     border-radius: 2px;
   }
 
-  .cards { display: flex; flex-direction: column; gap: 16px; }
+  .cards { display: flex; flex-direction: column; gap: 20px; }
 
+  /* ── 카드 ── */
   .card {
     background: #161b22;
     border: 1px solid #30363d;
-    border-radius: 12px;
+    border-radius: 14px;
     overflow: hidden;
     transition: border-color .2s;
   }
-  .card:hover { border-color: #388bfd; }
+  .card:hover { border-color: #388bfd55; }
 
   .card-header {
     padding: 18px 22px 14px;
@@ -145,7 +137,7 @@
     flex-shrink: 0;
   }
   .card-name   { font-size: 18px; font-weight: 700; }
-  .card-ticker { font-size: 12px; color: #58a6ff; margin-top: 2px; }
+  .card-ticker { font-size: 12px; color: #58a6ff; margin-top: 3px; }
   .score-pill {
     background: #1a3c2a;
     border: 1px solid #238636;
@@ -157,6 +149,7 @@
     white-space: nowrap;
   }
 
+  /* ── 가격 그리드 ── */
   .price-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -166,63 +159,161 @@
   }
   .price-cell {
     background: #161b22;
-    padding: 14px 16px;
+    padding: 13px 16px;
     text-align: center;
   }
-  .price-cell .lbl {
-    font-size: 11px;
-    color: #7d8590;
-    margin-bottom: 5px;
-    letter-spacing: .3px;
-  }
-  .price-cell .val { font-size: 17px; font-weight: 700; }
-  .buy    .val { color: #58a6ff; }
-  .target .val { color: #3fb950; }
-  .stop   .val { color: #f85149; }
+  .price-cell .lbl { font-size: 11px; color: #7d8590; margin-bottom: 4px; }
+  .price-cell .val { font-size: 16px; font-weight: 700; }
+  .p-buy    .val { color: #58a6ff; }
+  .p-target .val { color: #3fb950; }
+  .p-stop   .val { color: #f85149; }
 
-  .checks { padding: 14px 22px; display: flex; flex-direction: column; gap: 10px; }
-  .check {
+  /* ── 탭 ── */
+  .tabs {
+    display: flex;
+    border-bottom: 1px solid #21262d;
+    background: #0d1117;
+  }
+  .tab-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #7d8590;
+    padding: 12px 0;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color .2s, border-color .2s;
+    letter-spacing: .2px;
+  }
+  .tab-btn:hover { color: #c9d1d9; }
+  .tab-btn.active { color: #58a6ff; border-bottom-color: #58a6ff; }
+
+  .tab-panel { display: none; padding: 20px 22px; }
+  .tab-panel.active { display: block; }
+
+  /* ── 차트 탭 ── */
+  .chart-wrap {
+    background: #0d1117;
+    border-radius: 8px;
+    overflow: hidden;
+    height: 320px;
+    margin-bottom: 14px;
+  }
+  .chart-legend {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #7d8590;
+    flex-wrap: wrap;
+  }
+  .legend-dot {
+    display: inline-block;
+    width: 10px; height: 3px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  /* ── 수급 탭 ── */
+  .supply-section { margin-bottom: 18px; }
+  .supply-label {
+    font-size: 12px;
+    color: #7d8590;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .supply-total {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .supply-pos { color: #3fb950; }
+  .supply-neg { color: #f85149; }
+  .supply-neu { color: #7d8590; }
+
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 6px;
+    font-size: 12px;
+  }
+  .bar-label { width: 40px; color: #7d8590; text-align: right; flex-shrink: 0; }
+  .bar-bg {
+    flex: 1;
+    height: 18px;
+    background: #21262d;
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width .4s ease;
+    min-width: 2px;
+  }
+  .bar-fill.pos { background: #238636; }
+  .bar-fill.neg { background: #6e1a1a; }
+  .bar-val { width: 64px; text-align: right; color: #c9d1d9; flex-shrink: 0; font-weight: 600; }
+
+  /* ── 재료 탭 ── */
+  .reason-block {
     display: flex;
     gap: 10px;
-    font-size: 13px;
-    line-height: 1.55;
+    margin-bottom: 14px;
   }
-  .icon {
-    width: 22px; height: 22px;
+  .reason-icon {
+    width: 24px; height: 24px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 11px; font-weight: 700;
     flex-shrink: 0;
     margin-top: 1px;
   }
-  .icon-s { background: #1a3c2a; color: #3fb950; }
-  .icon-c { background: #1c2a3a; color: #58a6ff; }
-  .lbl-bold { color: #7d8590; font-weight: 700; margin-right: 4px; }
+  .ri-supply   { background: #1a3c2a; color: #3fb950; }
+  .ri-catalyst { background: #1c2a3a; color: #58a6ff; }
+
+  .reason-text { font-size: 13px; line-height: 1.6; color: #c9d1d9; }
+  .reason-lbl  { font-weight: 700; color: #7d8590; margin-right: 4px; }
+
+  .news-list { margin-top: 16px; }
+  .news-title { font-size: 12px; color: #7d8590; font-weight: 600; margin-bottom: 8px; }
+  .news-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #21262d;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .news-item:last-child { border-bottom: none; }
+  .news-dot { color: #30363d; margin-top: 4px; flex-shrink: 0; }
 
   /* ── 빈 상태 / 에러 ── */
   .empty {
     text-align: center;
-    padding: 52px 20px;
+    padding: 56px 20px;
     color: #7d8590;
   }
   .empty .ei { font-size: 44px; margin-bottom: 14px; }
   .empty h3  { font-size: 17px; color: #c9d1d9; margin-bottom: 8px; }
   .empty p   { font-size: 13px; line-height: 1.65; }
 
-  .error-box {
-    background: #2d1414;
-    border: 1px solid #6e1a1a;
-    color: #f85149;
-    border-radius: 10px;
-    padding: 16px 20px;
+  .no-data-msg {
+    text-align: center;
+    padding: 36px 20px;
     font-size: 13px;
-    margin-bottom: 20px;
+    color: #484f58;
   }
 
   footer {
     margin-top: auto;
     text-align: center;
-    padding: 24px 20px;
+    padding: 22px 20px;
     font-size: 12px;
     color: #484f58;
     border-top: 1px solid #21262d;
@@ -231,7 +322,8 @@
   @media (max-width: 520px) {
     .price-grid { grid-template-columns: 1fr; }
     .card-header { flex-direction: column; }
-    #analyzeBtn { width: 100%; padding: 18px; }
+    #mainBtn { width: 100%; padding: 17px; }
+    .chart-wrap { height: 240px; }
   }
 </style>
 </head>
@@ -242,7 +334,7 @@
     <div class="logo-icon">📈</div>
     <div>
       <h1>눌림목 AI 종목 추천</h1>
-      <p>수급·재료·차트 3중 검증 · 2주 +5% 목표</p>
+      <p>수급 · 재료 · 차트 3중 검증 · 2주 +5% 목표</p>
     </div>
   </div>
   <div class="header-date" id="headerDate"></div>
@@ -250,12 +342,12 @@
 
 <div class="hero">
   <h2>오늘의 매수 후보를 AI가 골라드립니다</h2>
-  <p>전날 수집된 눌림목 후보 종목을<br>Gemini AI가 수급·재료·손익비 기준으로 심사합니다</p>
-  <button id="analyzeBtn" onclick="analyze()">🔍 추천 종목 분석하기</button>
+  <p>매일 새벽 전 종목 스캔 → 눌림목 필터 → Gemini AI 심사<br>버튼 클릭 한 번으로 결과를 확인하세요</p>
+  <button id="mainBtn" onclick="loadRecs()">🔍 추천 종목 확인하기</button>
   <div class="last-update" id="lastUpdate"></div>
   <div class="loading" id="loading">
     <div class="spinner"></div>
-    <span id="loadingMsg">Gemini AI 심사 중… (약 10~20초)</span>
+    <span>데이터 불러오는 중…</span>
   </div>
 </div>
 
@@ -266,110 +358,240 @@
 </footer>
 
 <script>
-// 헤더 날짜
 document.getElementById("headerDate").textContent =
-  new Date().toLocaleDateString("ko-KR", {year:"numeric", month:"long", day:"numeric", weekday:"short"});
-
-// 마지막 업데이트 시간 (candidates.json 기준)
-fetch("data/candidates.json?t=" + Date.now())
-  .then(r => r.json())
-  .then(d => {
-    if (d.updated_at) {
-      document.getElementById("lastUpdate").textContent =
-        "데이터 기준: " + d.updated_at + " · 후보 " + (d.candidates || []).length + "개";
-    }
-  }).catch(() => {
-    document.getElementById("lastUpdate").textContent = "데이터를 불러올 수 없습니다 (Actions 미실행)";
-  });
+  new Date().toLocaleDateString("ko-KR", { year:"numeric", month:"long", day:"numeric", weekday:"short" });
 
 function fmt(n) { return Number(n).toLocaleString("ko-KR"); }
 
-async function analyze() {
-  const btn     = document.getElementById("analyzeBtn");
+// ── 탭 전환 ──────────────────────────────────────────────────
+function switchTab(cardIdx, tab) {
+  const card = document.querySelector(`[data-card="${cardIdx}"]`);
+  card.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
+  card.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
+
+  if (tab === "chart") renderChart(cardIdx);
+}
+
+// ── 차트 렌더 ─────────────────────────────────────────────────
+const chartInstances = {};
+
+function renderChart(cardIdx) {
+  if (chartInstances[cardIdx]) return;  // 이미 그려진 경우 스킵
+
+  const container = document.getElementById(`chart-${cardIdx}`);
+  if (!container) return;
+
+  const raw = window._chartData[cardIdx];
+  if (!raw || raw.length === 0) {
+    container.innerHTML = '<div class="no-data-msg">차트 데이터가 없습니다</div>';
+    return;
+  }
+
+  const chart = LightweightCharts.createChart(container, {
+    layout: { background: { color: "#0d1117" }, textColor: "#7d8590" },
+    grid: { vertLines: { color: "#21262d" }, horzLines: { color: "#21262d" } },
+    crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+    rightPriceScale: { borderColor: "#30363d" },
+    timeScale: { borderColor: "#30363d", timeVisible: true },
+    width: container.clientWidth,
+    height: container.clientHeight,
+  });
+
+  // 캔들
+  const candle = chart.addCandlestickSeries({
+    upColor: "#3fb950",
+    downColor: "#f85149",
+    borderUpColor: "#3fb950",
+    borderDownColor: "#f85149",
+    wickUpColor: "#3fb950",
+    wickDownColor: "#f85149",
+  });
+  candle.setData(raw.map(d => ({ time: d.time, open: d.open, high: d.high, low: d.low, close: d.close })));
+
+  // MA20
+  const ma20s = chart.addLineSeries({ color: "#f0a400", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
+  ma20s.setData(raw.filter(d => d.ma20 != null).map(d => ({ time: d.time, value: d.ma20 })));
+
+  // MA60
+  const ma60s = chart.addLineSeries({ color: "#58a6ff", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
+  ma60s.setData(raw.filter(d => d.ma60 != null).map(d => ({ time: d.time, value: d.ma60 })));
+
+  chart.timeScale().fitContent();
+  chartInstances[cardIdx] = chart;
+
+  // 리사이즈 대응
+  const ro = new ResizeObserver(() => {
+    chart.applyOptions({ width: container.clientWidth });
+  });
+  ro.observe(container);
+}
+
+// ── 수급 바 HTML ──────────────────────────────────────────────
+function buildSupplyHtml(sd) {
+  if (!sd) return '<div class="no-data-msg">수급 데이터 없음</div>';
+
+  const net3d = sd.foreign_net_3d ?? 0;
+  const daily = sd.foreign_daily ?? [];
+
+  const cls   = net3d > 0 ? "supply-pos" : net3d < 0 ? "supply-neg" : "supply-neu";
+  const sign  = net3d > 0 ? "+" : "";
+
+  const maxAbs = Math.max(...daily.map(v => Math.abs(v)), 1);
+
+  const bars = daily.map((v, i) => {
+    const pct  = Math.round(Math.abs(v) / maxAbs * 100);
+    const cls2 = v >= 0 ? "pos" : "neg";
+    const label = `D-${i + 1}`;
+    const valStr = (v > 0 ? "+" : "") + fmt(v) + "주";
+    return `
+      <div class="bar-row">
+        <div class="bar-label">${label}</div>
+        <div class="bar-bg">
+          <div class="bar-fill ${cls2}" style="width:${pct}%"></div>
+        </div>
+        <div class="bar-val ${v >= 0 ? "supply-pos" : "supply-neg"}">${valStr}</div>
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="supply-section">
+      <div class="supply-label">외국인 3일 순매수</div>
+      <div class="supply-total ${cls}">${sign}${fmt(net3d)}주</div>
+      ${bars || '<div class="no-data-msg" style="padding:8px 0">일별 데이터 없음</div>'}
+    </div>`;
+}
+
+// ── 재료 탭 HTML ──────────────────────────────────────────────
+function buildCatalystHtml(r) {
+  const news = (r.news || []).map(n => `
+    <div class="news-item">
+      <span class="news-dot">▪</span>
+      <span>${n}</span>
+    </div>`).join("");
+
+  return `
+    <div class="reason-block">
+      <div class="reason-icon ri-supply">수</div>
+      <div class="reason-text"><span class="reason-lbl">수급 판단:</span>${r.supply_check || "-"}</div>
+    </div>
+    <div class="reason-block">
+      <div class="reason-icon ri-catalyst">재</div>
+      <div class="reason-text"><span class="reason-lbl">재료·모멘텀:</span>${r.catalyst_check || "-"}</div>
+    </div>
+    ${news ? `<div class="news-list"><div class="news-title">최근 뉴스 헤드라인</div>${news}</div>` : ""}`;
+}
+
+// ── 카드 렌더 ─────────────────────────────────────────────────
+function buildCard(r, i) {
+  const p = r.entry_plan || {};
+  return `
+  <div class="card" data-card="${i}">
+    <div class="card-header">
+      <div class="card-meta">
+        <div class="rank">${i + 1}</div>
+        <div>
+          <div class="card-name">${r.name || r.ticker}</div>
+          <div class="card-ticker">${r.ticker}</div>
+        </div>
+      </div>
+      <div class="score-pill">AI 점수 ${r.score}점</div>
+    </div>
+
+    <div class="price-grid">
+      <div class="price-cell p-buy">
+        <div class="lbl">▶ 매수가</div>
+        <div class="val">${fmt(p.buy_price)}원</div>
+      </div>
+      <div class="price-cell p-target">
+        <div class="lbl">🎯 목표 +5%</div>
+        <div class="val">${fmt(p.target_price)}원</div>
+      </div>
+      <div class="price-cell p-stop">
+        <div class="lbl">🛑 손절 -2.5%</div>
+        <div class="val">${fmt(p.stop_loss)}원</div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="chart" onclick="switchTab(${i}, 'chart')">📊 차트</button>
+      <button class="tab-btn"        data-tab="supply" onclick="switchTab(${i}, 'supply')">💹 수급</button>
+      <button class="tab-btn"        data-tab="catalyst" onclick="switchTab(${i}, 'catalyst')">📰 재료</button>
+    </div>
+
+    <div class="tab-panel active" data-panel="chart">
+      <div class="chart-wrap" id="chart-${i}"></div>
+      <div class="chart-legend">
+        <span><span class="legend-dot" style="background:#3fb950"></span>상승</span>
+        <span><span class="legend-dot" style="background:#f85149"></span>하락</span>
+        <span><span class="legend-dot" style="background:#f0a400"></span>MA20</span>
+        <span><span class="legend-dot" style="background:#58a6ff"></span>MA60</span>
+      </div>
+    </div>
+
+    <div class="tab-panel" data-panel="supply">
+      ${buildSupplyHtml(r.supply_data)}
+    </div>
+
+    <div class="tab-panel" data-panel="catalyst">
+      ${buildCatalystHtml(r)}
+    </div>
+  </div>`;
+}
+
+// ── 메인 로드 ─────────────────────────────────────────────────
+window._chartData = {};
+
+async function loadRecs() {
+  const btn     = document.getElementById("mainBtn");
   const loading = document.getElementById("loading");
   const result  = document.getElementById("result");
 
-  btn.disabled = true;
+  btn.style.display  = "none";
   loading.style.display = "flex";
-  result.innerHTML = "";
+  result.innerHTML   = "";
 
   try {
-    const res  = await fetch("/api/recommend?t=" + Date.now());
+    const res  = await fetch("data/recommendations.json?t=" + Date.now());
+    if (!res.ok) throw new Error("데이터 파일을 찾을 수 없습니다 (GitHub Actions가 아직 실행되지 않았을 수 있습니다)");
     const data = await res.json();
-    render(data);
-  } catch (e) {
-    result.innerHTML = `<div class="error-box">⚠️ 분석 중 오류가 발생했습니다: ${e.message}</div>`;
-  } finally {
-    btn.disabled = false;
-    loading.style.display = "none";
-  }
-}
 
-function render(data) {
-  const result = document.getElementById("result");
+    document.getElementById("lastUpdate").textContent =
+      data.updated_at ? `기준: ${data.updated_at} · 후보 ${data.candidates_count ?? "-"}개 중 ${(data.recommendations||[]).length}개 통과` : "";
 
-  if (data.error) {
-    result.innerHTML = `<div class="error-box">⚠️ ${data.error}</div>`;
-    return;
-  }
+    const recs = data.recommendations || [];
 
-  const recs = data.recommendations || [];
+    if (recs.length === 0) {
+      result.innerHTML = `
+        <div class="empty">
+          <div class="ei">🔍</div>
+          <h3>오늘은 조건을 충족하는 종목이 없습니다</h3>
+          <p>${data.message || "눌림목 + 수급 + 재료 3중 검증 기준 90점 초과 종목 없음"}<br>억지 추천보다 오늘은 쉬는 게 맞습니다.</p>
+        </div>`;
+      return;
+    }
 
-  if (recs.length === 0) {
+    // 차트 데이터 전역 보관
+    recs.forEach((r, i) => { window._chartData[i] = r.chart_data || []; });
+
+    const html = recs.map((r, i) => buildCard(r, i)).join("");
+    result.innerHTML = `
+      <div class="section-title">오늘의 AI 추천 종목 — ${data.date || ""}</div>
+      <div class="cards">${html}</div>`;
+
+    // 첫 번째 카드 차트 자동 렌더
+    setTimeout(() => renderChart(0), 50);
+
+  } catch(e) {
     result.innerHTML = `
       <div class="empty">
-        <div class="ei">🔍</div>
-        <h3>오늘은 조건을 충족하는 종목이 없습니다</h3>
-        <p>눌림목 + 수급 + 재료 3중 검증 기준 90점을 초과한 종목이 없습니다.<br>
-        억지 추천보다 오늘은 쉬는 게 맞습니다.</p>
+        <div class="ei">⚠️</div>
+        <h3>데이터를 불러오지 못했습니다</h3>
+        <p>${e.message}</p>
       </div>`;
-    return;
+  } finally {
+    btn.style.display  = "inline-block";
+    loading.style.display = "none";
   }
-
-  const cards = recs.map((r, i) => {
-    const p = r.entry_plan;
-    return `
-    <div class="card">
-      <div class="card-header">
-        <div class="card-meta">
-          <div class="rank">${i + 1}</div>
-          <div>
-            <div class="card-name">${r.name}</div>
-            <div class="card-ticker">${r.ticker}</div>
-          </div>
-        </div>
-        <div class="score-pill">AI 점수 ${r.score}점</div>
-      </div>
-      <div class="price-grid">
-        <div class="price-cell buy">
-          <div class="lbl">▶ 매수가</div>
-          <div class="val">${fmt(p.buy_price)}원</div>
-        </div>
-        <div class="price-cell target">
-          <div class="lbl">🎯 목표가 +5%</div>
-          <div class="val">${fmt(p.target_price)}원</div>
-        </div>
-        <div class="price-cell stop">
-          <div class="lbl">🛑 손절가 -2.5%</div>
-          <div class="val">${fmt(p.stop_loss)}원</div>
-        </div>
-      </div>
-      <div class="checks">
-        <div class="check">
-          <div class="icon icon-s">수</div>
-          <div><span class="lbl-bold">수급</span>${r.supply_check}</div>
-        </div>
-        <div class="check">
-          <div class="icon icon-c">재</div>
-          <div><span class="lbl-bold">재료</span>${r.catalyst_check}</div>
-        </div>
-      </div>
-    </div>`;
-  }).join("");
-
-  result.innerHTML = `
-    <div class="section-title">오늘의 AI 추천 종목 (기준: ${data.date || "-"})</div>
-    <div class="cards">${cards}</div>`;
 }
 </script>
 </body>
