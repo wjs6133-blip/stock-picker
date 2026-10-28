@@ -369,17 +369,28 @@ function switchTab(cardIdx, tab) {
   card.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === tab));
   card.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
 
-  if (tab === "chart") renderChart(cardIdx);
+  if (tab === "chart") {
+    // DOM 레이아웃 확정 후 렌더 (display:none→block 직후 offsetWidth=0 방지)
+    requestAnimationFrame(() => requestAnimationFrame(() => renderChart(cardIdx)));
+  }
 }
 
 // ── 차트 렌더 ─────────────────────────────────────────────────
 const chartInstances = {};
 
 function renderChart(cardIdx) {
-  if (chartInstances[cardIdx]) return;  // 이미 그려진 경우 스킵
-
   const container = document.getElementById(`chart-${cardIdx}`);
   if (!container) return;
+
+  // 이미 그려진 경우: 크기만 맞춰줌
+  if (chartInstances[cardIdx]) {
+    const w = container.offsetWidth || container.parentElement?.offsetWidth || 600;
+    if (w > 0) {
+      chartInstances[cardIdx].applyOptions({ width: w });
+      chartInstances[cardIdx].timeScale().fitContent();
+    }
+    return;
+  }
 
   const raw = window._chartData[cardIdx];
   if (!raw || raw.length === 0) {
@@ -389,6 +400,12 @@ function renderChart(cardIdx) {
 
   const w = container.offsetWidth || container.parentElement?.offsetWidth || 600;
   const h = 300;
+  if (w === 0) {
+    // 아직 레이아웃 미확정 — 한 프레임 더 기다림
+    requestAnimationFrame(() => renderChart(cardIdx));
+    return;
+  }
+
   const chart = LightweightCharts.createChart(container, {
     layout: { background: { color: "#0d1117" }, textColor: "#7d8590" },
     grid: { vertLines: { color: "#21262d" }, horzLines: { color: "#21262d" } },
@@ -399,7 +416,6 @@ function renderChart(cardIdx) {
     height: h,
   });
 
-  // 캔들
   const candle = chart.addCandlestickSeries({
     upColor: "#ef5350",
     downColor: "#1976d2",
@@ -410,20 +426,18 @@ function renderChart(cardIdx) {
   });
   candle.setData(raw.map(d => ({ time: d.time, open: d.open, high: d.high, low: d.low, close: d.close })));
 
-  // MA20
   const ma20s = chart.addLineSeries({ color: "#f0a400", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
   ma20s.setData(raw.filter(d => d.ma20 != null).map(d => ({ time: d.time, value: d.ma20 })));
 
-  // MA60
   const ma60s = chart.addLineSeries({ color: "#58a6ff", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
   ma60s.setData(raw.filter(d => d.ma60 != null).map(d => ({ time: d.time, value: d.ma60 })));
 
   chart.timeScale().fitContent();
   chartInstances[cardIdx] = chart;
 
-  // 리사이즈 대응
   const ro = new ResizeObserver(() => {
-    chart.applyOptions({ width: container.clientWidth });
+    const cw = container.clientWidth;
+    if (cw > 0) chart.applyOptions({ width: cw });
   });
   ro.observe(container);
 }
@@ -613,7 +627,7 @@ async function loadRecs() {
       <div class="cards">${html}</div>`;
 
     // 첫 번째 카드 차트 자동 렌더
-    setTimeout(() => renderChart(0), 150);
+    requestAnimationFrame(() => requestAnimationFrame(() => renderChart(0)));
 
   } catch(e) {
     result.innerHTML = `
