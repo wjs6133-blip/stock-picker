@@ -465,22 +465,51 @@ function buildSupplyHtml(sd) {
 
 // ── 재료 탭 HTML ──────────────────────────────────────────────
 function buildCatalystHtml(r) {
+  const d = r.catalyst_detail || {};
   const news = (r.news || []).map(n => `
     <div class="news-item">
       <span class="news-dot">▪</span>
       <span>${n}</span>
     </div>`).join("");
 
-  return `
+  const summaryBlock = r.catalyst_summary ? `
     <div class="reason-block">
-      <div class="reason-icon ri-supply">수</div>
-      <div class="reason-text"><span class="reason-lbl">수급 판단:</span>${r.supply_check || "-"}</div>
-    </div>
+      <div class="reason-icon ri-catalyst" style="font-size:13px">핵</div>
+      <div class="reason-text"><span class="reason-lbl">핵심 근거:</span>${r.catalyst_summary}</div>
+    </div>` : "";
+
+  const themeBlock = d.theme ? `
     <div class="reason-block">
-      <div class="reason-icon ri-catalyst">재</div>
-      <div class="reason-text"><span class="reason-lbl">재료·모멘텀:</span>${r.catalyst_check || "-"}</div>
-    </div>
-    ${news ? `<div class="news-list"><div class="news-title">최근 뉴스 헤드라인</div>${news}</div>` : ""}`;
+      <div class="reason-icon ri-catalyst" style="background:#1c2a3a;color:#58a6ff">테</div>
+      <div class="reason-text"><span class="reason-lbl">테마·섹터:</span>${d.theme}</div>
+    </div>` : "";
+
+  const momentumBlock = d.momentum ? `
+    <div class="reason-block">
+      <div class="reason-icon ri-catalyst" style="background:#1a3a2a;color:#3fb950">모</div>
+      <div class="reason-text"><span class="reason-lbl">모멘텀:</span>${d.momentum}</div>
+    </div>` : "";
+
+  const chartBlock = r.chart_reason ? `
+    <div class="reason-block">
+      <div class="reason-icon ri-catalyst" style="background:#2a2a1a;color:#f0a400">차</div>
+      <div class="reason-text"><span class="reason-lbl">차트 근거:</span>${r.chart_reason}</div>
+    </div>` : "";
+
+  const riskBlock = d.risk ? `
+    <div class="reason-block">
+      <div class="reason-icon" style="background:#3a1a1a;color:#f85149;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">위</div>
+      <div class="reason-text"><span class="reason-lbl" style="color:#f85149">리스크:</span>${d.risk}</div>
+    </div>` : "";
+
+  const strategyBlock = r.entry_plan?.strategy ? `
+    <div class="reason-block">
+      <div class="reason-icon" style="background:#1a1a3a;color:#9e6fff;width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;margin-top:1px">전</div>
+      <div class="reason-text"><span class="reason-lbl">전략:</span>${r.entry_plan.strategy}</div>
+    </div>` : "";
+
+  return summaryBlock + themeBlock + momentumBlock + chartBlock + riskBlock + strategyBlock +
+    (news ? `<div class="news-list" style="margin-top:16px"><div class="news-title">최근 뉴스 헤드라인</div>${news}</div>` : "");
 }
 
 // ── 카드 렌더 ─────────────────────────────────────────────────

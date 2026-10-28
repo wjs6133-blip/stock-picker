@@ -161,12 +161,18 @@ def ask_gemini(candidates: list) -> list:
     "ticker": "종목코드",
     "name": "종목명",
     "score": 93,
-    "supply_check": "수급 판단 근거",
-    "catalyst_check": "재료 지속성 근거",
+    "catalyst_summary": "핵심 매수 근거를 2~3문장으로 요약. 왜 지금 이 종목인지 핵심만.",
+    "catalyst_detail": {{
+      "theme": "속한 테마/섹터와 현재 시장 흐름과의 연관성 (2문장)",
+      "momentum": "향후 2주 내 후속 촉매 예상 근거. 구체적 이벤트·일정 포함 (2~3문장)",
+      "risk": "가장 주의해야 할 리스크 1~2가지 (1~2문장)"
+    }},
+    "chart_reason": "차트 기술적 근거 — 20일선/60일선 위치, 거래량 수축, 눌림목 구간 설명 (2문장)",
     "entry_plan": {{
       "buy_price": 매수가,
       "target_price": 목표가,
-      "stop_loss": 손절가
+      "stop_loss": 손절가,
+      "strategy": "매수 타이밍과 분할 전략 한 문장"
     }}
   }}
 ]"""
