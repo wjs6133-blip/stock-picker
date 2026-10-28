@@ -193,12 +193,19 @@ def ask_gemini(candidates: list) -> list:
   }}
 ]"""
 
-    raw = client.models.generate_content(model="gemini-3.8-flash", contents=prompt).text.strip()
-    raw = raw.replace("```json", "").replace("```", "").strip()
-    try:
-        return json.loads(raw)
-    except Exception:
-        return []
+    for attempt in range(5):
+        try:
+            raw = client.models.generate_content(model="gemini-3.8-flash", contents=prompt).text.strip()
+            raw = raw.replace("```json", "").replace("```", "").strip()
+            return json.loads(raw)
+        except Exception as e:
+            if attempt < 4:
+                wait = 30 * (attempt + 1)
+                print(f"Gemini 오류 (시도 {attempt+1}/5), {wait}초 후 재시도: {e}")
+                time.sleep(wait)
+            else:
+                print(f"Gemini 최종 실패: {e}")
+                return []
 
 
 # ── 메인 ─────────────────────────────────────────────────────
