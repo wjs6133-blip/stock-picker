@@ -1,0 +1,45 @@
+{
+  "date": "20261013",
+  "updated_at": "2026-10-13 06:00",
+  "recommendations": [
+    {
+      "ticker": "005930",
+      "name": "삼성전자",
+      "score": 91,
+      "catalyst_summary": "테스트 데이터 — 삼성전자 20261013 기준가 234,000원",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 234000,
+        "target_price": 245700,
+        "stop_loss": 228150,
+        "strategy": "테스트용 자동 생성"
+      }
+    },
+    {
+      "ticker": "373220",
+      "name": "LG에너지솔루션",
+      "score": 91,
+      "catalyst_summary": "테스트 데이터 — LG에너지솔루션 20261013 기준가 412,500원",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 412500,
+        "target_price": 433125,
+        "stop_loss": 402187,
+        "strategy": "테스트용 자동 생성"
+      }
+    },
+    {
+      "ticker": "000270",
+      "name": "기아",
+      "score": 91,
+      "catalyst_summary": "테스트 데이터 — 기아 20261013 기준가 107,400원",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 107400,
+        "target_price": 112770,
+        "stop_loss": 104715,
+        "strategy": "테스트용 자동 생성"
+      }
+    }
+  ]
+}

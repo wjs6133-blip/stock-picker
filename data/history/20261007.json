@@ -1,0 +1,70 @@
+{
+  "date": "20261007",
+  "updated_at": "2026-10-07 06:00",
+  "recommendations": [
+    {
+      "ticker": "035420",
+      "name": "NAVER",
+      "score": 91,
+      "catalyst_summary": "테스트 데이터 — NAVER 20261007 기준가 188,100원",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 188100,
+        "target_price": 197505,
+        "stop_loss": 183397,
+        "strategy": "테스트용 자동 생성"
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -2.6,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 175500
+      }
+    },
+    {
+      "ticker": "005380",
+      "name": "현대차",
+      "score": 91,
+      "catalyst_summary": "테스트 데이터 — 현대차 20261007 기준가 336,500원",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 336500,
+        "target_price": 353325,
+        "stop_loss": 328087,
+        "strategy": "테스트용 자동 생성"
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -3.57,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 300500
+      }
+    },
+    {
+      "ticker": "207940",
+      "name": "삼성바이오로직스",
+      "score": 91,
+      "catalyst_summary": "테스트 데이터 — 삼성바이오로직스 20261007 기준가 1,278,000원",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 1278000,
+        "target_price": 1341900,
+        "stop_loss": 1246050,
+        "strategy": "테스트용 자동 생성"
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 10.49,
+        "hit_date": "2026-10-19",
+        "days_to_hit": 7,
+        "final_close": 1361000
+      }
+    }
+  ],
+  "performance_checked": true
+}
