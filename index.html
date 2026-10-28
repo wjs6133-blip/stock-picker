@@ -401,12 +401,12 @@ function renderChart(cardIdx) {
 
   // 캔들
   const candle = chart.addCandlestickSeries({
-    upColor: "#3fb950",
-    downColor: "#f85149",
-    borderUpColor: "#3fb950",
-    borderDownColor: "#f85149",
-    wickUpColor: "#3fb950",
-    wickDownColor: "#f85149",
+    upColor: "#ef5350",
+    downColor: "#1976d2",
+    borderUpColor: "#ef5350",
+    borderDownColor: "#1976d2",
+    wickUpColor: "#ef5350",
+    wickDownColor: "#1976d2",
   });
   candle.setData(raw.map(d => ({ time: d.time, open: d.open, high: d.high, low: d.low, close: d.close })));
 
@@ -523,8 +523,8 @@ function buildCard(r, i) {
     <div class="tab-panel active" data-panel="chart">
       <div class="chart-wrap" id="chart-${i}"></div>
       <div class="chart-legend">
-        <span><span class="legend-dot" style="background:#3fb950"></span>상승</span>
-        <span><span class="legend-dot" style="background:#f85149"></span>하락</span>
+        <span><span class="legend-dot" style="background:#ef5350"></span>상승</span>
+        <span><span class="legend-dot" style="background:#1976d2"></span>하락</span>
         <span><span class="legend-dot" style="background:#f0a400"></span>MA20</span>
         <span><span class="legend-dot" style="background:#58a6ff"></span>MA60</span>
       </div>
