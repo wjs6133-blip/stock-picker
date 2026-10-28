@@ -86,6 +86,7 @@
     animation: spin .85s linear infinite;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
 
   /* ── 결과 영역 ── */
   main { max-width: 900px; margin: 0 auto; width: 100%; padding: 0 20px 56px; }
@@ -344,10 +345,19 @@
   <h2>오늘의 매수 후보를 AI가 골라드립니다</h2>
   <p>매일 새벽 전 종목 스캔 → 눌림목 필터 → Gemini AI 심사<br>버튼 클릭 한 번으로 결과를 확인하세요</p>
   <button id="mainBtn" onclick="loadRecs()">🔍 추천 종목 확인하기</button>
+  <button id="realtimeBtn" onclick="startRealtime()" style="margin-top:12px;background:transparent;color:#58a6ff;border:1px solid #58a6ff;border-radius:12px;padding:12px 36px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:-0.3px;transition:all .2s;">⚡ 실시간 종목 분석</button>
   <div class="last-update" id="lastUpdate"></div>
   <div class="loading" id="loading">
     <div class="spinner"></div>
     <span>데이터 불러오는 중…</span>
+  </div>
+  <div id="realtimeStatus" style="display:none;margin-top:20px;padding:20px;background:#161b22;border:1px solid #30363d;border-radius:12px;max-width:400px;margin-left:auto;margin-right:auto;text-align:left">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <span style="font-size:14px;font-weight:700;color:#58a6ff">⚡ 실시간 분석 진행 중</span>
+      <span id="rtTimer" style="font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;color:#c9d1d9">0:00</span>
+    </div>
+    <div id="rtStages" style="display:flex;flex-direction:column;gap:8px;font-size:13px"></div>
+    <div style="margin-top:12px;font-size:12px;color:#484f58">전종목 스캔 후 AI 심사까지 약 8~10분 소요됩니다</div>
   </div>
 </div>
 
@@ -656,6 +666,89 @@ async function loadRecs() {
     btn.style.display  = "inline-block";
     loading.style.display = "none";
   }
+}
+
+// ── 실시간 분석 ───────────────────────────────────────────────
+let rtInterval = null;
+
+const STAGES = [
+  { label: "분석 시작",        sec: 0  },
+  { label: "전종목 스캔 중",   sec: 30 },
+  { label: "수급·뉴스 수집",   sec: 300 },
+  { label: "AI(Gemini) 심사",  sec: 420 },
+  { label: "결과 저장 중",     sec: 500 },
+];
+
+function renderStages(elapsed, done) {
+  const el = document.getElementById("rtStages");
+  el.innerHTML = STAGES.map(s => {
+    const active  = !done && elapsed >= s.sec && elapsed < (STAGES[STAGES.indexOf(s)+1]?.sec ?? Infinity);
+    const passed  = done || elapsed > s.sec;
+    const color   = done ? "#3fb950" : active ? "#58a6ff" : passed ? "#3fb950" : "#484f58";
+    const icon    = done ? "✓" : active ? "▶" : passed ? "✓" : "○";
+    return `<div style="display:flex;align-items:center;gap:8px;color:${color}">
+      <span style="font-size:11px;width:14px;text-align:center">${icon}</span>
+      <span>${s.label}</span>
+      ${active ? '<span style="animation:pulse 1s infinite;font-size:11px">···</span>' : ""}
+    </div>`;
+  }).join("");
+}
+
+async function startRealtime() {
+  const btn = document.getElementById("realtimeBtn");
+  const statusBox = document.getElementById("realtimeStatus");
+  const timerEl  = document.getElementById("rtTimer");
+
+  btn.disabled = true;
+  btn.style.opacity = "0.5";
+  statusBox.style.display = "block";
+
+  // 현재 updated_at 기록
+  let prevUpdated = "";
+  try {
+    const r = await fetch("data/recommendations.json?t=" + Date.now());
+    const d = await r.json();
+    prevUpdated = d.updated_at || "";
+  } catch(_) {}
+
+  // 트리거
+  try {
+    await fetch("/api/trigger");
+  } catch(e) {
+    statusBox.innerHTML = `<span style="color:#f85149">트리거 실패: ${e.message}</span>`;
+    btn.disabled = false; btn.style.opacity = "1";
+    return;
+  }
+
+  let elapsed = 0;
+  renderStages(elapsed, false);
+
+  if (rtInterval) clearInterval(rtInterval);
+  rtInterval = setInterval(async () => {
+    elapsed++;
+    const m = Math.floor(elapsed / 60);
+    const s = String(elapsed % 60).padStart(2, "0");
+    timerEl.textContent = `${m}:${s}`;
+    renderStages(elapsed, false);
+
+    // 30초마다 완료 여부 확인
+    if (elapsed % 30 === 0) {
+      try {
+        const r = await fetch("data/recommendations.json?t=" + Date.now());
+        const d = await r.json();
+        if (d.updated_at && d.updated_at !== prevUpdated) {
+          clearInterval(rtInterval);
+          renderStages(elapsed, true);
+          timerEl.textContent = `${m}:${s} ✓`;
+          setTimeout(() => {
+            statusBox.style.display = "none";
+            btn.disabled = false; btn.style.opacity = "1";
+            loadRecs();
+          }, 1500);
+        }
+      } catch(_) {}
+    }
+  }, 1000);
 }
 </script>
 </body>
