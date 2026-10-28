@@ -30,6 +30,9 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: python scripts/analyze.py
 
+      - name: Check historical performance
+        run: python scripts/check_performance.py
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"

@@ -1031,10 +1031,43 @@ async function selectHistDate(dateKey) {
     }
 
     const cards = recs.map((r, i) => {
-      const p = r.entry_plan || {};
+      const p  = r.entry_plan || {};
+      const pf = r.performance || null;
       const stars = r.catalyst_stars || 0;
-      const starHtml = `${'★'.repeat(stars)}${'☆'.repeat(5-stars)}`;
+      const starHtml  = `${'★'.repeat(stars)}${'☆'.repeat(5-stars)}`;
       const starColor = stars >= 4 ? '#f0a400' : stars === 3 ? '#c9d1d9' : '#484f58';
+
+      // 성과 뱃지
+      let perfBadge = "";
+      // 2주 경과 여부 계산
+      const recDateObj = new Date(yy, parseInt(mm)-1, parseInt(dd));
+      const daysPassed = Math.floor((Date.now() - recDateObj) / 86400000);
+      if (pf && pf.checked) {
+        if (pf.hit_target) {
+          const dStr = pf.days_to_hit ? `D+${pf.days_to_hit}` : pf.hit_date || "";
+          perfBadge = `<div style="display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 12px;background:#1a3c2a;border:1px solid #238636;border-radius:8px">
+            <span style="font-size:15px">✅</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#3fb950">목표가 달성 (${dStr})</div>
+              <div style="font-size:11px;color:#7d8590">최대 수익 <span style="color:#3fb950;font-weight:700">+${pf.max_return_pct}%</span> · 종가 ${fmt(pf.final_close)}원</div>
+            </div>
+          </div>`;
+        } else {
+          perfBadge = `<div style="display:flex;align-items:center;gap:6px;margin-top:10px;padding:8px 12px;background:#2a1a1a;border:1px solid #6e2222;border-radius:8px">
+            <span style="font-size:15px">❌</span>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:#f85149">목표가 미달성 (10거래일)</div>
+              <div style="font-size:11px;color:#7d8590">최대 수익률 <span style="color:${pf.max_return_pct >= 0 ? '#c9d1d9' : '#f85149'};font-weight:700">${pf.max_return_pct >= 0 ? '+' : ''}${pf.max_return_pct}%</span> · 종가 ${fmt(pf.final_close)}원</div>
+            </div>
+          </div>`;
+        }
+      } else if (daysPassed < 16) {
+        const remain = 16 - daysPassed;
+        perfBadge = `<div style="margin-top:10px;padding:7px 12px;background:#1a1f2a;border:1px solid #21262d;border-radius:8px;font-size:12px;color:#484f58">⏳ 성과 집계 중 (약 ${remain}일 후 확인 가능)</div>`;
+      } else {
+        perfBadge = `<div style="margin-top:10px;padding:7px 12px;background:#1a1f2a;border:1px solid #21262d;border-radius:8px;font-size:12px;color:#484f58">⏳ 성과 집계 중</div>`;
+      }
+
       return `
       <div class="hist-card">
         <div class="hist-card-top">
@@ -1062,6 +1095,7 @@ async function selectHistDate(dateKey) {
           </div>
         </div>
         ${r.catalyst_summary ? `<div class="hist-summary">${r.catalyst_summary}</div>` : ""}
+        ${perfBadge}
       </div>`;
     }).join("");
 
