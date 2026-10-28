@@ -241,15 +241,47 @@ def main():
             recs.append(r)
         message = f"후보 {len(candidates)}개 중 {len(recs)}개 통과"
 
+    date_str = datetime.now().strftime("%Y%m%d")
+
     os.makedirs("data", exist_ok=True)
     with open("data/recommendations.json", "w", encoding="utf-8") as f:
         json.dump({
-            "date"            : datetime.now().strftime("%Y%m%d"),
+            "date"            : date_str,
             "updated_at"      : datetime.now().strftime("%Y-%m-%d %H:%M"),
             "candidates_count": len(candidates),
             "message"         : message,
             "recommendations" : recs,
         }, f, ensure_ascii=False, indent=2)
+
+    # ── 히스토리 저장 (차트 데이터 제외 경량 버전) ──────────────
+    os.makedirs("data/history", exist_ok=True)
+    history_recs = [{
+        "ticker"          : r.get("ticker"),
+        "name"            : r.get("name"),
+        "score"           : r.get("score"),
+        "catalyst_summary": r.get("catalyst_summary"),
+        "catalyst_stars"  : r.get("catalyst_stars"),
+        "entry_plan"      : r.get("entry_plan"),
+    } for r in recs]
+
+    with open(f"data/history/{date_str}.json", "w", encoding="utf-8") as f:
+        json.dump({
+            "date"           : date_str,
+            "updated_at"     : datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "recommendations": history_recs,
+        }, f, ensure_ascii=False, indent=2)
+
+    index_path = "data/history/index.json"
+    try:
+        with open(index_path, "r", encoding="utf-8") as f:
+            idx = json.load(f)
+    except Exception:
+        idx = []
+    if date_str not in idx:
+        idx.append(date_str)
+    idx.sort(reverse=True)
+    with open(index_path, "w", encoding="utf-8") as f:
+        json.dump(idx, f, ensure_ascii=False)
 
     print(f"완료 — 추천 {len(recs)}개")
 

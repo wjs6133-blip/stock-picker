@@ -320,6 +320,165 @@
     border-top: 1px solid #21262d;
   }
 
+  /* ── 히스토리 모달 ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    z-index: 1000;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 24px 12px 40px;
+    overflow-y: auto;
+  }
+  .modal-overlay.open { display: flex; }
+
+  .modal-box {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 520px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    border-bottom: 1px solid #21262d;
+  }
+  .modal-head h3 { font-size: 15px; font-weight: 700; }
+  .modal-close {
+    background: none; border: none;
+    color: #7d8590; font-size: 20px;
+    cursor: pointer; padding: 0 4px;
+    line-height: 1;
+  }
+  .modal-close:hover { color: #c9d1d9; }
+
+  /* 달력 */
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 20px 8px;
+  }
+  .cal-nav-btn {
+    background: none; border: none;
+    color: #58a6ff; font-size: 16px;
+    cursor: pointer; padding: 4px 10px;
+    border-radius: 6px;
+    transition: background .15s;
+  }
+  .cal-nav-btn:hover { background: #1c2a3a; }
+  .cal-title { font-size: 14px; font-weight: 700; }
+
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    padding: 0 12px 14px;
+  }
+  .cal-day-label {
+    text-align: center;
+    font-size: 11px;
+    color: #484f58;
+    padding: 6px 0 4px;
+    font-weight: 600;
+  }
+  .cal-day {
+    text-align: center;
+    padding: 7px 4px;
+    font-size: 13px;
+    border-radius: 8px;
+    cursor: default;
+    position: relative;
+    color: #484f58;
+    user-select: none;
+  }
+  .cal-day.has-data {
+    color: #c9d1d9;
+    cursor: pointer;
+    background: #1a3c2a22;
+  }
+  .cal-day.has-data:hover { background: #1a3c2a88; color: #3fb950; }
+  .cal-day.has-data.selected { background: #238636; color: #fff; }
+  .cal-day.has-data::after {
+    content: '';
+    display: block;
+    width: 5px; height: 5px;
+    background: #3fb950;
+    border-radius: 50%;
+    margin: 3px auto 0;
+  }
+  .cal-day.has-data.selected::after { background: #fff; }
+  .cal-day.today { font-weight: 700; }
+  .cal-day.sun { color: #f85149cc; }
+  .cal-day.has-data.sun { color: #f85149; }
+
+  /* 히스토리 결과 */
+  .hist-result {
+    border-top: 1px solid #21262d;
+    padding: 16px 20px 20px;
+    min-height: 80px;
+  }
+  .hist-date-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #7d8590;
+    margin-bottom: 12px;
+  }
+  .hist-card {
+    background: #0d1117;
+    border: 1px solid #21262d;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .hist-card:last-child { margin-bottom: 0; }
+  .hist-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  .hist-card-name { font-size: 15px; font-weight: 700; }
+  .hist-card-ticker { font-size: 11px; color: #58a6ff; margin-top: 2px; }
+  .hist-score {
+    font-size: 12px;
+    font-weight: 700;
+    color: #3fb950;
+    background: #1a3c2a;
+    border: 1px solid #238636;
+    border-radius: 12px;
+    padding: 3px 10px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .hist-prices {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+    flex-wrap: wrap;
+  }
+  .hist-p { display: flex; flex-direction: column; gap: 2px; }
+  .hist-p .lbl { color: #484f58; }
+  .hist-p .val { font-weight: 700; }
+  .hp-buy    .val { color: #58a6ff; }
+  .hp-target .val { color: #3fb950; }
+  .hp-stop   .val { color: #f85149; }
+  .hist-summary {
+    margin-top: 8px;
+    font-size: 12px;
+    color: #7d8590;
+    line-height: 1.55;
+    border-top: 1px solid #21262d;
+    padding-top: 8px;
+  }
+
   @media (max-width: 520px) {
     .price-grid { grid-template-columns: 1fr; }
     .card-header { flex-direction: column; }
@@ -346,6 +505,7 @@
   <p>매일 새벽 전 종목 스캔 → 눌림목 필터 → Gemini AI 심사<br>버튼 클릭 한 번으로 결과를 확인하세요</p>
   <button id="mainBtn" onclick="loadRecs()">🔍 추천 종목 확인하기</button>
   <button id="realtimeBtn" onclick="startRealtime()" style="margin-top:12px;background:transparent;color:#58a6ff;border:1px solid #58a6ff;border-radius:12px;padding:12px 36px;font-size:15px;font-weight:600;cursor:pointer;letter-spacing:-0.3px;transition:all .2s;">⚡ 실시간 종목 분석</button>
+  <button id="historyBtn" onclick="openHistory()" style="margin-top:10px;background:transparent;color:#7d8590;border:1px solid #30363d;border-radius:12px;padding:11px 32px;font-size:14px;font-weight:600;cursor:pointer;letter-spacing:-0.3px;transition:all .2s;">📅 이전 추천 기록</button>
   <div class="last-update" id="lastUpdate"></div>
   <div class="loading" id="loading">
     <div class="spinner"></div>
@@ -362,6 +522,25 @@
 </div>
 
 <main id="result"></main>
+
+<!-- 히스토리 달력 모달 -->
+<div class="modal-overlay" id="historyModal" onclick="closeHistoryOnBg(event)">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>📅 이전 추천 기록</h3>
+      <button class="modal-close" onclick="closeHistory()">✕</button>
+    </div>
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calMove(-1)">◀</button>
+      <div class="cal-title" id="calTitle"></div>
+      <button class="cal-nav-btn" onclick="calMove(1)">▶</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="hist-result" id="histResult">
+      <div style="text-align:center;color:#484f58;font-size:13px;padding:16px 0">날짜를 선택하면 추천 종목을 확인할 수 있습니다</div>
+    </div>
+  </div>
+</div>
 
 <footer>
   ⚠️ 본 서비스는 참고용 알고리즘 분석이며, 투자 손실에 대한 책임을 지지 않습니다. 최종 판단은 본인이 직접 하세요.
@@ -749,6 +928,147 @@ async function startRealtime() {
       } catch(_) {}
     }
   }, 1000);
+}
+
+// ── 히스토리 달력 ─────────────────────────────────────────────
+let _histIndex  = [];          // ["20261028","20261025",...]
+let _calYear    = 0;
+let _calMonth   = 0;           // 0-indexed
+let _selectedDate = "";
+
+async function openHistory() {
+  const modal = document.getElementById("historyModal");
+  modal.classList.add("open");
+  document.body.style.overflow = "hidden";
+
+  // index.json 로드
+  try {
+    const r = await fetch("data/history/index.json?t=" + Date.now());
+    _histIndex = await r.json();
+  } catch(_) { _histIndex = []; }
+
+  // 현재 달로 초기화
+  const now = new Date();
+  _calYear  = now.getFullYear();
+  _calMonth = now.getMonth();
+  renderCal();
+}
+
+function closeHistory() {
+  document.getElementById("historyModal").classList.remove("open");
+  document.body.style.overflow = "";
+  _selectedDate = "";
+}
+function closeHistoryOnBg(e) {
+  if (e.target === document.getElementById("historyModal")) closeHistory();
+}
+
+function calMove(delta) {
+  _calMonth += delta;
+  if (_calMonth < 0)  { _calMonth = 11; _calYear--; }
+  if (_calMonth > 11) { _calMonth = 0;  _calYear++; }
+  renderCal();
+}
+
+function renderCal() {
+  const titleEl = document.getElementById("calTitle");
+  const gridEl  = document.getElementById("calGrid");
+  titleEl.textContent = `${_calYear}년 ${_calMonth + 1}월`;
+
+  // 이 달에 데이터 있는 날짜 셋
+  const prefix = `${_calYear}${String(_calMonth + 1).padStart(2, "0")}`;
+  const hasSet = new Set(_histIndex.filter(d => d.startsWith(prefix)).map(d => parseInt(d.slice(6))));
+
+  const today = new Date();
+  const firstDay = new Date(_calYear, _calMonth, 1).getDay(); // 0=일
+  const daysInMonth = new Date(_calYear, _calMonth + 1, 0).getDate();
+
+  const LABELS = ["일","월","화","수","목","금","토"];
+  let html = LABELS.map(l => `<div class="cal-day-label">${l}</div>`).join("");
+
+  // 앞 빈칸
+  for (let i = 0; i < firstDay; i++) html += `<div class="cal-day"></div>`;
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dow  = new Date(_calYear, _calMonth, d).getDay();
+    const key  = `${_calYear}${String(_calMonth + 1).padStart(2,"0")}${String(d).padStart(2,"0")}`;
+    const has  = hasSet.has(d);
+    const isTd = today.getFullYear() === _calYear && today.getMonth() === _calMonth && today.getDate() === d;
+    const isSel = _selectedDate === key;
+    const cls  = [
+      "cal-day",
+      dow === 0 ? "sun" : "",
+      has    ? "has-data" : "",
+      isTd   ? "today"   : "",
+      isSel  ? "selected": "",
+    ].filter(Boolean).join(" ");
+    const onclick = has ? `onclick="selectHistDate('${key}')"` : "";
+    html += `<div class="${cls}" ${onclick}>${d}</div>`;
+  }
+
+  gridEl.innerHTML = html;
+}
+
+async function selectHistDate(dateKey) {
+  _selectedDate = dateKey;
+  renderCal();  // 선택 표시 갱신
+
+  const result = document.getElementById("histResult");
+  result.innerHTML = `<div style="text-align:center;padding:20px;color:#7d8590;font-size:13px">불러오는 중…</div>`;
+
+  try {
+    const r = await fetch(`data/history/${dateKey}.json?t=` + Date.now());
+    if (!r.ok) throw new Error("데이터 없음");
+    const data = await r.json();
+
+    const recs = data.recommendations || [];
+    const yy = dateKey.slice(0,4), mm = dateKey.slice(4,6), dd = dateKey.slice(6,8);
+    const dateStr = `${yy}-${mm}-${dd}`;
+
+    if (recs.length === 0) {
+      result.innerHTML = `<div class="hist-date-title">${dateStr}</div><div style="color:#484f58;font-size:13px">해당 날짜 추천 종목 없음</div>`;
+      return;
+    }
+
+    const cards = recs.map((r, i) => {
+      const p = r.entry_plan || {};
+      const stars = r.catalyst_stars || 0;
+      const starHtml = `${'★'.repeat(stars)}${'☆'.repeat(5-stars)}`;
+      const starColor = stars >= 4 ? '#f0a400' : stars === 3 ? '#c9d1d9' : '#484f58';
+      return `
+      <div class="hist-card">
+        <div class="hist-card-top">
+          <div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="width:22px;height:22px;background:linear-gradient(135deg,#238636,#2ea043);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${i+1}</div>
+              <div class="hist-card-name">${r.name || r.ticker}</div>
+            </div>
+            <div class="hist-card-ticker">${r.ticker} &nbsp;<span style="color:${starColor};letter-spacing:1px;font-size:11px">${starHtml}</span></div>
+          </div>
+          <div class="hist-score">AI ${r.score}점</div>
+        </div>
+        <div class="hist-prices">
+          <div class="hist-p hp-buy">
+            <span class="lbl">▶ 매수가</span>
+            <span class="val">${fmt(p.buy_price)}원</span>
+          </div>
+          <div class="hist-p hp-target">
+            <span class="lbl">🎯 목표</span>
+            <span class="val">${fmt(p.target_price)}원</span>
+          </div>
+          <div class="hist-p hp-stop">
+            <span class="lbl">🛑 손절</span>
+            <span class="val">${fmt(p.stop_loss)}원</span>
+          </div>
+        </div>
+        ${r.catalyst_summary ? `<div class="hist-summary">${r.catalyst_summary}</div>` : ""}
+      </div>`;
+    }).join("");
+
+    result.innerHTML = `<div class="hist-date-title">${dateStr} 추천 종목 ${recs.length}개</div>${cards}`;
+  } catch(e) {
+    result.innerHTML = `<div style="color:#f85149;font-size:13px;padding:8px 0">데이터를 불러오지 못했습니다</div>`;
+  }
 }
 </script>
 </body>

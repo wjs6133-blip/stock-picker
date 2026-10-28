@@ -34,5 +34,5 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/recommendations.json
+          git add data/recommendations.json data/history/
           git diff --staged --quiet || git commit -m "chore: daily recommendations update" && git push
