@@ -198,7 +198,7 @@
     background: #0d1117;
     border-radius: 8px;
     overflow: hidden;
-    height: 320px;
+    height: 340px;
     margin-bottom: 14px;
   }
   .chart-legend {
@@ -399,7 +399,7 @@ function renderChart(cardIdx) {
   }
 
   const w = container.offsetWidth || container.parentElement?.offsetWidth || 600;
-  const h = 300;
+  const h = 340;
   if (w === 0) {
     // 아직 레이아웃 미확정 — 한 프레임 더 기다림
     requestAnimationFrame(() => renderChart(cardIdx));
@@ -431,6 +431,22 @@ function renderChart(cardIdx) {
 
   const ma60s = chart.addLineSeries({ color: "#58a6ff", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
   ma60s.setData(raw.filter(d => d.ma60 != null).map(d => ({ time: d.time, value: d.ma60 })));
+
+  // 거래량 히스토그램 (하단 20% 영역)
+  const volSeries = chart.addHistogramSeries({
+    priceFormat: { type: "volume" },
+    priceScaleId: "volume",
+    lastValueVisible: false,
+    priceLineVisible: false,
+  });
+  chart.priceScale("volume").applyOptions({
+    scaleMargins: { top: 0.82, bottom: 0 },
+  });
+  volSeries.setData(raw.map((d, i) => ({
+    time: d.time,
+    value: d.volume,
+    color: i > 0 && d.close >= raw[i - 1].close ? "#ef535055" : "#1976d255",
+  })));
 
   chart.timeScale().fitContent();
   chartInstances[cardIdx] = chart;
