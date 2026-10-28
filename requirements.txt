@@ -1,4 +1,4 @@
 pykrx
-anthropic
+google-generativeai
 requests
 beautifulsoup4

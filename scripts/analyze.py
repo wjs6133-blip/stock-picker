@@ -7,13 +7,13 @@ import os
 import time
 from datetime import datetime, timedelta
 
-import anthropic
+import google.generativeai as genai
 import requests
 from bs4 import BeautifulSoup
 from pykrx import stock
 
 # ─── 설정 ───────────────────────────────────────────────────────────────────
-MAX_CANDIDATES_FOR_AI = 10   # Claude에게 넘길 최대 후보 수
+MAX_CANDIDATES_FOR_AI = 10   # Gemini에게 넘길 최대 후보 수
 VOLUME_CONTRACTION    = 0.65 # 거래량 수축 기준 (20일 평균 대비)
 MA20_BAND             = 0.04 # 20일 이평선 ±4% 이내
 DRAWDOWN_MIN          = -0.20
@@ -140,8 +140,9 @@ def scrape_news(ticker: str) -> list[str]:
         return []
 
 
-def ask_claude(candidates: list[dict]) -> list[dict]:
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+def ask_gemini(candidates: list[dict]) -> list[dict]:
+    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
+    model = genai.GenerativeModel("gemini-1.5-flash")
 
     data_str = json.dumps(candidates, ensure_ascii=False, indent=2)
 
@@ -169,7 +170,7 @@ def ask_claude(candidates: list[dict]) -> list[dict]:
 분석 대상 종목 데이터:
 {data_str}
 
-JSON 형식으로만 응답 (다른 텍스트 일절 포함 금지):
+JSON 배열로만 응답하세요. 코드블록(```)이나 다른 텍스트 없이 순수 JSON만:
 [
   {{
     "ticker": "종목코드",
@@ -185,18 +186,12 @@ JSON 형식으로만 응답 (다른 텍스트 일절 포함 금지):
   }}
 ]"""
 
-    msg = client.messages.create(
-        model="claude-opus-4-6",
-        max_tokens=2048,
-        messages=[{"role": "user", "content": prompt}],
-    )
-    raw = msg.content[0].text.strip()
+    response = model.generate_content(prompt)
+    raw = response.text.strip()
 
-    # JSON 파싱
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
-        # 코드블록 제거 후 재시도
         raw = raw.replace("```json", "").replace("```", "").strip()
         try:
             return json.loads(raw)
@@ -239,8 +234,8 @@ def main():
         recommendations = []
         message = "오늘은 조건을 충족하는 종목이 없습니다."
     else:
-        print("Claude AI 심사 중...")
-        recommendations = ask_claude(candidates)
+        print("Gemini AI 심사 중...")
+        recommendations = ask_gemini(candidates)
         message = f"후보 {len(candidates)}개 중 {len(recommendations)}개 통과"
 
     output = {
