@@ -1,4 +1,4 @@
-pykrx
+pykrx==1.0.45
 google-generativeai
 requests
 beautifulsoup4
