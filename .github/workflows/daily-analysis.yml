@@ -26,7 +26,7 @@ jobs:
       - name: Run analysis
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: python scripts/analyze.py
+        run: python scripts/collect_candidates.py
 
       - name: Commit & push results
         run: |

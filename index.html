@@ -3,79 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>눌림목 매매 AI 추천</title>
+<title>눌림목 AI 종목 추천</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
   body {
     background: #0d1117;
     color: #e6edf3;
-    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+    font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
   }
 
-  /* ── 헤더 ── */
   header {
     background: #161b22;
     border-bottom: 1px solid #30363d;
-    padding: 20px 32px;
+    padding: 18px 28px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px;
-  }
-  .logo {
-    display: flex;
-    align-items: center;
     gap: 10px;
   }
+  .logo { display: flex; align-items: center; gap: 10px; }
   .logo-icon {
-    width: 36px; height: 36px;
+    width: 38px; height: 38px;
     background: linear-gradient(135deg, #238636, #2ea043);
-    border-radius: 8px;
+    border-radius: 9px;
     display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+  .logo h1 { font-size: 17px; font-weight: 700; }
+  .logo p  { font-size: 12px; color: #7d8590; margin-top: 2px; }
+  .header-date { font-size: 12px; color: #7d8590; }
+
+  /* ── 버튼 영역 ── */
+  .hero {
+    padding: 48px 20px 36px;
+    text-align: center;
+  }
+  .hero h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .hero p {
+    font-size: 14px;
+    color: #7d8590;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  #analyzeBtn {
+    background: linear-gradient(135deg, #238636, #2ea043);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 18px 52px;
     font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    letter-spacing: -0.3px;
   }
-  .logo-text h1 { font-size: 18px; font-weight: 700; }
-  .logo-text p  { font-size: 12px; color: #7d8590; margin-top: 2px; }
+  #analyzeBtn:hover  { opacity: .88; }
+  #analyzeBtn:active { transform: scale(.97); }
+  #analyzeBtn:disabled { opacity: .45; cursor: not-allowed; }
 
-  .meta { text-align: right; font-size: 12px; color: #7d8590; }
-  .meta strong { color: #58a6ff; }
-
-  /* ── 메인 ── */
-  main { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
-
-  /* ── 상태 배너 ── */
-  .status-bar {
-    background: #161b22;
-    border: 1px solid #30363d;
-    border-radius: 10px;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 28px;
-  }
-  .status-info { display: flex; align-items: center; gap: 12px; }
-  .badge {
-    padding: 4px 10px;
-    border-radius: 20px;
+  .last-update {
+    margin-top: 14px;
     font-size: 12px;
-    font-weight: 600;
+    color: #484f58;
   }
-  .badge-green  { background: #1a3c2a; color: #3fb950; }
-  .badge-yellow { background: #3d2f00; color: #d29922; }
-  .badge-gray   { background: #21262d; color: #7d8590; }
 
-  .stat-row { display: flex; gap: 20px; font-size: 13px; color: #7d8590; }
-  .stat-row span strong { color: #e6edf3; }
+  /* ── 로딩 ── */
+  .loading {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding: 20px;
+    color: #7d8590;
+    font-size: 14px;
+  }
+  .spinner {
+    width: 40px; height: 40px;
+    border: 3px solid #30363d;
+    border-top-color: #2ea043;
+    border-radius: 50%;
+    animation: spin .85s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── 섹션 타이틀 ── */
+  /* ── 결과 영역 ── */
+  main { max-width: 860px; margin: 0 auto; width: 100%; padding: 0 20px 48px; }
+
   .section-title {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     color: #7d8590;
     margin-bottom: 14px;
@@ -86,12 +111,11 @@
   .section-title::before {
     content: '';
     display: block;
-    width: 3px; height: 15px;
+    width: 3px; height: 14px;
     background: #238636;
     border-radius: 2px;
   }
 
-  /* ── 추천 카드 ── */
   .cards { display: flex; flex-direction: column; gap: 16px; }
 
   .card {
@@ -111,18 +135,18 @@
     gap: 12px;
     border-bottom: 1px solid #21262d;
   }
-  .card-title { display: flex; align-items: center; gap: 10px; }
-  .card-rank {
-    width: 28px; height: 28px;
-    border-radius: 50%;
+  .card-meta { display: flex; align-items: center; gap: 10px; }
+  .rank {
+    width: 30px; height: 30px;
     background: linear-gradient(135deg, #238636, #2ea043);
+    border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
     font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
   }
-  .card-name { font-size: 18px; font-weight: 700; }
+  .card-name   { font-size: 18px; font-weight: 700; }
   .card-ticker { font-size: 12px; color: #58a6ff; margin-top: 2px; }
-
-  .score-badge {
+  .score-pill {
     background: #1a3c2a;
     border: 1px solid #238636;
     color: #3fb950;
@@ -133,98 +157,81 @@
     white-space: nowrap;
   }
 
-  /* ── 매매 플랜 ── */
-  .entry-plan {
+  .price-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 1px;
     background: #21262d;
+    gap: 1px;
     border-bottom: 1px solid #21262d;
   }
-  .plan-cell {
-    padding: 14px 20px;
+  .price-cell {
     background: #161b22;
+    padding: 14px 16px;
     text-align: center;
   }
-  .plan-cell .label {
+  .price-cell .lbl {
     font-size: 11px;
     color: #7d8590;
-    margin-bottom: 6px;
-    text-transform: uppercase;
-    letter-spacing: .5px;
+    margin-bottom: 5px;
+    letter-spacing: .3px;
   }
-  .plan-cell .value {
-    font-size: 17px;
-    font-weight: 700;
-  }
-  .buy-price    .value { color: #58a6ff; }
-  .target-price .value { color: #3fb950; }
-  .stop-loss    .value { color: #f85149; }
+  .price-cell .val { font-size: 17px; font-weight: 700; }
+  .buy    .val { color: #58a6ff; }
+  .target .val { color: #3fb950; }
+  .stop   .val { color: #f85149; }
 
-  /* ── 검증 항목 ── */
-  .checks { padding: 16px 22px; display: flex; flex-direction: column; gap: 10px; }
-  .check-item {
+  .checks { padding: 14px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .check {
     display: flex;
     gap: 10px;
     font-size: 13px;
-    line-height: 1.5;
+    line-height: 1.55;
   }
-  .check-icon {
-    width: 20px; height: 20px;
+  .icon {
+    width: 22px; height: 22px;
     border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
+    font-size: 11px; font-weight: 700;
     flex-shrink: 0;
     margin-top: 1px;
   }
-  .check-supply { background: #1a3c2a; color: #3fb950; }
-  .check-catalyst { background: #1c2a3a; color: #58a6ff; }
-  .check-label { color: #7d8590; margin-right: 4px; font-weight: 600; }
+  .icon-s { background: #1a3c2a; color: #3fb950; }
+  .icon-c { background: #1c2a3a; color: #58a6ff; }
+  .lbl-bold { color: #7d8590; font-weight: 700; margin-right: 4px; }
 
-  /* ── 빈 상태 ── */
-  .empty-state {
+  /* ── 빈 상태 / 에러 ── */
+  .empty {
     text-align: center;
-    padding: 60px 20px;
+    padding: 52px 20px;
     color: #7d8590;
   }
-  .empty-icon { font-size: 48px; margin-bottom: 16px; }
-  .empty-state h2 { font-size: 18px; color: #e6edf3; margin-bottom: 8px; }
-  .empty-state p  { font-size: 14px; line-height: 1.6; }
+  .empty .ei { font-size: 44px; margin-bottom: 14px; }
+  .empty h3  { font-size: 17px; color: #c9d1d9; margin-bottom: 8px; }
+  .empty p   { font-size: 13px; line-height: 1.65; }
 
-  /* ── 로딩 ── */
-  .loading {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 60px 20px;
-    gap: 16px;
-    color: #7d8590;
+  .error-box {
+    background: #2d1414;
+    border: 1px solid #6e1a1a;
+    color: #f85149;
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-size: 13px;
+    margin-bottom: 20px;
   }
-  .spinner {
-    width: 36px; height: 36px;
-    border: 3px solid #30363d;
-    border-top-color: #238636;
-    border-radius: 50%;
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* ── 푸터 ── */
   footer {
+    margin-top: auto;
     text-align: center;
-    padding: 32px 20px;
+    padding: 24px 20px;
     font-size: 12px;
     color: #484f58;
     border-top: 1px solid #21262d;
-    margin-top: 40px;
   }
-  footer strong { color: #7d8590; }
 
-  /* ── 반응형 ── */
-  @media (max-width: 560px) {
-    .entry-plan { grid-template-columns: 1fr; }
-    .plan-cell { padding: 12px 16px; }
+  @media (max-width: 520px) {
+    .price-grid { grid-template-columns: 1fr; }
     .card-header { flex-direction: column; }
+    #analyzeBtn { width: 100%; padding: 18px; }
   }
 </style>
 </head>
@@ -233,145 +240,137 @@
 <header>
   <div class="logo">
     <div class="logo-icon">📈</div>
-    <div class="logo-text">
-      <h1>눌림목 AI 추천</h1>
-      <p>매일 오전 6시 자동 분석 · 2주 +5% 목표</p>
+    <div>
+      <h1>눌림목 AI 종목 추천</h1>
+      <p>수급·재료·차트 3중 검증 · 2주 +5% 목표</p>
     </div>
   </div>
-  <div class="meta" id="meta">불러오는 중…</div>
+  <div class="header-date" id="headerDate"></div>
 </header>
 
-<main>
-  <div class="status-bar" id="statusBar" style="display:none">
-    <div class="status-info">
-      <span class="badge badge-gray" id="statusBadge">—</span>
-      <span id="statusMessage" style="font-size:13px; color:#7d8590"></span>
-    </div>
-    <div class="stat-row">
-      <span>후보 종목 <strong id="candidateCount">—</strong>개</span>
-      <span>통과 <strong id="passCount">—</strong>개</span>
-    </div>
+<div class="hero">
+  <h2>오늘의 매수 후보를 AI가 골라드립니다</h2>
+  <p>전날 수집된 눌림목 후보 종목을<br>Gemini AI가 수급·재료·손익비 기준으로 심사합니다</p>
+  <button id="analyzeBtn" onclick="analyze()">🔍 추천 종목 분석하기</button>
+  <div class="last-update" id="lastUpdate"></div>
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <span id="loadingMsg">Gemini AI 심사 중… (약 10~20초)</span>
   </div>
+</div>
 
-  <div id="content">
-    <div class="loading">
-      <div class="spinner"></div>
-      <span>분석 결과 불러오는 중…</span>
-    </div>
-  </div>
-</main>
+<main id="result"></main>
 
 <footer>
-  ⚠️ 본 서비스는 <strong>참고용 알고리즘 분석</strong>이며, 투자 손실에 대한 책임을 지지 않습니다.<br>
-  최종 투자 결정은 본인이 직접 판단하세요.
+  ⚠️ 본 서비스는 참고용 알고리즘 분석이며, 투자 손실에 대한 책임을 지지 않습니다. 최종 판단은 본인이 직접 하세요.
 </footer>
 
 <script>
-async function load() {
+// 헤더 날짜
+document.getElementById("headerDate").textContent =
+  new Date().toLocaleDateString("ko-KR", {year:"numeric", month:"long", day:"numeric", weekday:"short"});
+
+// 마지막 업데이트 시간 (candidates.json 기준)
+fetch("data/candidates.json?t=" + Date.now())
+  .then(r => r.json())
+  .then(d => {
+    if (d.updated_at) {
+      document.getElementById("lastUpdate").textContent =
+        "데이터 기준: " + d.updated_at + " · 후보 " + (d.candidates || []).length + "개";
+    }
+  }).catch(() => {
+    document.getElementById("lastUpdate").textContent = "데이터를 불러올 수 없습니다 (Actions 미실행)";
+  });
+
+function fmt(n) { return Number(n).toLocaleString("ko-KR"); }
+
+async function analyze() {
+  const btn     = document.getElementById("analyzeBtn");
+  const loading = document.getElementById("loading");
+  const result  = document.getElementById("result");
+
+  btn.disabled = true;
+  loading.style.display = "flex";
+  result.innerHTML = "";
+
   try {
-    const res  = await fetch(`data/recommendations.json?t=${Date.now()}`);
+    const res  = await fetch("/api/recommend?t=" + Date.now());
     const data = await res.json();
     render(data);
   } catch (e) {
-    document.getElementById("content").innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
-        <h2>데이터를 불러올 수 없습니다</h2>
-        <p>GitHub Actions 분석이 아직 실행되지 않았거나 네트워크 오류입니다.</p>
-      </div>`;
+    result.innerHTML = `<div class="error-box">⚠️ 분석 중 오류가 발생했습니다: ${e.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    loading.style.display = "none";
   }
-}
-
-function fmt(n) {
-  return Number(n).toLocaleString("ko-KR");
 }
 
 function render(data) {
-  // 메타
-  const dateStr = data.date !== "000000"
-    ? `${data.date.slice(0,4)}.${data.date.slice(4,6)}.${data.date.slice(6,8)} 기준`
-    : "미분석";
-  document.getElementById("meta").innerHTML =
-    `기준일 <strong>${dateStr}</strong><br>업데이트 ${data.updated_at}`;
+  const result = document.getElementById("result");
 
-  // 상태바
-  const bar = document.getElementById("statusBar");
-  bar.style.display = "flex";
-  document.getElementById("candidateCount").textContent = data.candidates_count;
-  document.getElementById("passCount").textContent      = data.recommendations.length;
-
-  const badge = document.getElementById("statusBadge");
-  const msg   = document.getElementById("statusMessage");
-  if (data.recommendations.length > 0) {
-    badge.className   = "badge badge-green";
-    badge.textContent = "추천 있음";
-  } else {
-    badge.className   = "badge badge-yellow";
-    badge.textContent = "해당 없음";
+  if (data.error) {
+    result.innerHTML = `<div class="error-box">⚠️ ${data.error}</div>`;
+    return;
   }
-  msg.textContent = data.message;
 
-  // 카드 렌더
-  const content = document.getElementById("content");
-  if (!data.recommendations || data.recommendations.length === 0) {
-    content.innerHTML = `
-      <div class="empty-state">
-        <div class="empty-icon">🔍</div>
-        <h2>오늘은 조건을 충족하는 종목이 없습니다</h2>
-        <p>눌림목 + 수급 + 재료 3중 검증 기준 90점을 넘긴 종목이 없습니다.<br>
-           억지로 추천하지 않는 것이 원칙입니다.</p>
+  const recs = data.recommendations || [];
+
+  if (recs.length === 0) {
+    result.innerHTML = `
+      <div class="empty">
+        <div class="ei">🔍</div>
+        <h3>오늘은 조건을 충족하는 종목이 없습니다</h3>
+        <p>눌림목 + 수급 + 재료 3중 검증 기준 90점을 초과한 종목이 없습니다.<br>
+        억지 추천보다 오늘은 쉬는 게 맞습니다.</p>
       </div>`;
     return;
   }
 
-  const title = `<div class="section-title">오늘의 AI 추천 종목</div>`;
-  const cards = data.recommendations.map((r, i) => {
+  const cards = recs.map((r, i) => {
     const p = r.entry_plan;
     return `
     <div class="card">
       <div class="card-header">
-        <div class="card-title">
-          <div class="card-rank">${i + 1}</div>
+        <div class="card-meta">
+          <div class="rank">${i + 1}</div>
           <div>
             <div class="card-name">${r.name}</div>
             <div class="card-ticker">${r.ticker}</div>
           </div>
         </div>
-        <div class="score-badge">AI 점수 ${r.score}점</div>
+        <div class="score-pill">AI 점수 ${r.score}점</div>
       </div>
-
-      <div class="entry-plan">
-        <div class="plan-cell buy-price">
-          <div class="label">▶ 매수가</div>
-          <div class="value">${fmt(p.buy_price)}원</div>
+      <div class="price-grid">
+        <div class="price-cell buy">
+          <div class="lbl">▶ 매수가</div>
+          <div class="val">${fmt(p.buy_price)}원</div>
         </div>
-        <div class="plan-cell target-price">
-          <div class="label">🎯 목표가 +5%</div>
-          <div class="value">${fmt(p.target_price)}원</div>
+        <div class="price-cell target">
+          <div class="lbl">🎯 목표가 +5%</div>
+          <div class="val">${fmt(p.target_price)}원</div>
         </div>
-        <div class="plan-cell stop-loss">
-          <div class="label">🛑 손절가 -2.5%</div>
-          <div class="value">${fmt(p.stop_loss)}원</div>
+        <div class="price-cell stop">
+          <div class="lbl">🛑 손절가 -2.5%</div>
+          <div class="val">${fmt(p.stop_loss)}원</div>
         </div>
       </div>
-
       <div class="checks">
-        <div class="check-item">
-          <div class="check-icon check-supply">수</div>
-          <div><span class="check-label">수급</span>${r.supply_check}</div>
+        <div class="check">
+          <div class="icon icon-s">수</div>
+          <div><span class="lbl-bold">수급</span>${r.supply_check}</div>
         </div>
-        <div class="check-item">
-          <div class="check-icon check-catalyst">재</div>
-          <div><span class="check-label">재료</span>${r.catalyst_check}</div>
+        <div class="check">
+          <div class="icon icon-c">재</div>
+          <div><span class="lbl-bold">재료</span>${r.catalyst_check}</div>
         </div>
       </div>
     </div>`;
   }).join("");
 
-  content.innerHTML = title + `<div class="cards">${cards}</div>`;
+  result.innerHTML = `
+    <div class="section-title">오늘의 AI 추천 종목 (기준: ${data.date || "-"})</div>
+    <div class="cards">${cards}</div>`;
 }
-
-load();
 </script>
 </body>
 </html>
