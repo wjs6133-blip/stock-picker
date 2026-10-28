@@ -118,23 +118,24 @@ def get_chart_series(ticker: str) -> list:
 
 
 def get_supply(ticker: str) -> dict:
-    """pykrx KRX 외국인 3일 순매수"""
+    """pykrx KRX 외국인 3일 순매수 (주 단위)"""
     try:
         end   = datetime.now()
         start = end - timedelta(days=10)
-        df = pkrx.get_market_trading_value_by_date(
+        df = pkrx.get_market_trading_volume_by_date(
             start.strftime("%Y%m%d"), end.strftime("%Y%m%d"), ticker
         )
         if df is None or df.empty:
             return {"foreign_net_3d": 0, "foreign_daily": []}
-        # 외국인 열 찾기
         col = next((c for c in df.columns if "외국인" in c), None)
         if col is None:
+            print(f"[supply] {ticker} 외국인 열 없음. 컬럼: {list(df.columns)}")
             return {"foreign_net_3d": 0, "foreign_daily": []}
         daily = [int(v) for v in df[col].iloc[-3:].tolist()]
-        daily.reverse()  # 최신순
+        daily.reverse()  # 최신순 (D-1, D-2, D-3)
         return {"foreign_net_3d": sum(daily), "foreign_daily": daily}
-    except Exception:
+    except Exception as e:
+        print(f"[supply] {ticker} 오류: {e}")
         return {"foreign_net_3d": 0, "foreign_daily": []}
 
 
