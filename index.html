@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>눌림목 매매 AI 추천</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0d1117;
+    color: #e6edf3;
+    font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+    min-height: 100vh;
+  }
+
+  /* ── 헤더 ── */
+  header {
+    background: #161b22;
+    border-bottom: 1px solid #30363d;
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #238636, #2ea043);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .logo-text h1 { font-size: 18px; font-weight: 700; }
+  .logo-text p  { font-size: 12px; color: #7d8590; margin-top: 2px; }
+
+  .meta { text-align: right; font-size: 12px; color: #7d8590; }
+  .meta strong { color: #58a6ff; }
+
+  /* ── 메인 ── */
+  main { max-width: 900px; margin: 0 auto; padding: 32px 20px; }
+
+  /* ── 상태 배너 ── */
+  .status-bar {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .status-info { display: flex; align-items: center; gap: 12px; }
+  .badge {
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-green  { background: #1a3c2a; color: #3fb950; }
+  .badge-yellow { background: #3d2f00; color: #d29922; }
+  .badge-gray   { background: #21262d; color: #7d8590; }
+
+  .stat-row { display: flex; gap: 20px; font-size: 13px; color: #7d8590; }
+  .stat-row span strong { color: #e6edf3; }
+
+  /* ── 섹션 타이틀 ── */
+  .section-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #7d8590;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 15px;
+    background: #238636;
+    border-radius: 2px;
+  }
+
+  /* ── 추천 카드 ── */
+  .cards { display: flex; flex-direction: column; gap: 16px; }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #30363d;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: border-color .2s;
+  }
+  .card:hover { border-color: #388bfd; }
+
+  .card-header {
+    padding: 18px 22px 14px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #21262d;
+  }
+  .card-title { display: flex; align-items: center; gap: 10px; }
+  .card-rank {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #238636, #2ea043);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+  }
+  .card-name { font-size: 18px; font-weight: 700; }
+  .card-ticker { font-size: 12px; color: #58a6ff; margin-top: 2px; }
+
+  .score-badge {
+    background: #1a3c2a;
+    border: 1px solid #238636;
+    color: #3fb950;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  /* ── 매매 플랜 ── */
+  .entry-plan {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: #21262d;
+    border-bottom: 1px solid #21262d;
+  }
+  .plan-cell {
+    padding: 14px 20px;
+    background: #161b22;
+    text-align: center;
+  }
+  .plan-cell .label {
+    font-size: 11px;
+    color: #7d8590;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+  }
+  .plan-cell .value {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .buy-price    .value { color: #58a6ff; }
+  .target-price .value { color: #3fb950; }
+  .stop-loss    .value { color: #f85149; }
+
+  /* ── 검증 항목 ── */
+  .checks { padding: 16px 22px; display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: flex;
+    gap: 10px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .check-icon {
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+  .check-supply { background: #1a3c2a; color: #3fb950; }
+  .check-catalyst { background: #1c2a3a; color: #58a6ff; }
+  .check-label { color: #7d8590; margin-right: 4px; font-weight: 600; }
+
+  /* ── 빈 상태 ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #7d8590;
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state h2 { font-size: 18px; color: #e6edf3; margin-bottom: 8px; }
+  .empty-state p  { font-size: 14px; line-height: 1.6; }
+
+  /* ── 로딩 ── */
+  .loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px;
+    gap: 16px;
+    color: #7d8590;
+  }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid #30363d;
+    border-top-color: #238636;
+    border-radius: 50%;
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── 푸터 ── */
+  footer {
+    text-align: center;
+    padding: 32px 20px;
+    font-size: 12px;
+    color: #484f58;
+    border-top: 1px solid #21262d;
+    margin-top: 40px;
+  }
+  footer strong { color: #7d8590; }
+
+  /* ── 반응형 ── */
+  @media (max-width: 560px) {
+    .entry-plan { grid-template-columns: 1fr; }
+    .plan-cell { padding: 12px 16px; }
+    .card-header { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">📈</div>
+    <div class="logo-text">
+      <h1>눌림목 AI 추천</h1>
+      <p>매일 오전 6시 자동 분석 · 2주 +5% 목표</p>
+    </div>
+  </div>
+  <div class="meta" id="meta">불러오는 중…</div>
+</header>
+
+<main>
+  <div class="status-bar" id="statusBar" style="display:none">
+    <div class="status-info">
+      <span class="badge badge-gray" id="statusBadge">—</span>
+      <span id="statusMessage" style="font-size:13px; color:#7d8590"></span>
+    </div>
+    <div class="stat-row">
+      <span>후보 종목 <strong id="candidateCount">—</strong>개</span>
+      <span>통과 <strong id="passCount">—</strong>개</span>
+    </div>
+  </div>
+
+  <div id="content">
+    <div class="loading">
+      <div class="spinner"></div>
+      <span>분석 결과 불러오는 중…</span>
+    </div>
+  </div>
+</main>
+
+<footer>
+  ⚠️ 본 서비스는 <strong>참고용 알고리즘 분석</strong>이며, 투자 손실에 대한 책임을 지지 않습니다.<br>
+  최종 투자 결정은 본인이 직접 판단하세요.
+</footer>
+
+<script>
+async function load() {
+  try {
+    const res  = await fetch(`data/recommendations.json?t=${Date.now()}`);
+    const data = await res.json();
+    render(data);
+  } catch (e) {
+    document.getElementById("content").innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <h2>데이터를 불러올 수 없습니다</h2>
+        <p>GitHub Actions 분석이 아직 실행되지 않았거나 네트워크 오류입니다.</p>
+      </div>`;
+  }
+}
+
+function fmt(n) {
+  return Number(n).toLocaleString("ko-KR");
+}
+
+function render(data) {
+  // 메타
+  const dateStr = data.date !== "000000"
+    ? `${data.date.slice(0,4)}.${data.date.slice(4,6)}.${data.date.slice(6,8)} 기준`
+    : "미분석";
+  document.getElementById("meta").innerHTML =
+    `기준일 <strong>${dateStr}</strong><br>업데이트 ${data.updated_at}`;
+
+  // 상태바
+  const bar = document.getElementById("statusBar");
+  bar.style.display = "flex";
+  document.getElementById("candidateCount").textContent = data.candidates_count;
+  document.getElementById("passCount").textContent      = data.recommendations.length;
+
+  const badge = document.getElementById("statusBadge");
+  const msg   = document.getElementById("statusMessage");
+  if (data.recommendations.length > 0) {
+    badge.className   = "badge badge-green";
+    badge.textContent = "추천 있음";
+  } else {
+    badge.className   = "badge badge-yellow";
+    badge.textContent = "해당 없음";
+  }
+  msg.textContent = data.message;
+
+  // 카드 렌더
+  const content = document.getElementById("content");
+  if (!data.recommendations || data.recommendations.length === 0) {
+    content.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h2>오늘은 조건을 충족하는 종목이 없습니다</h2>
+        <p>눌림목 + 수급 + 재료 3중 검증 기준 90점을 넘긴 종목이 없습니다.<br>
+           억지로 추천하지 않는 것이 원칙입니다.</p>
+      </div>`;
+    return;
+  }
+
+  const title = `<div class="section-title">오늘의 AI 추천 종목</div>`;
+  const cards = data.recommendations.map((r, i) => {
+    const p = r.entry_plan;
+    return `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">
+          <div class="card-rank">${i + 1}</div>
+          <div>
+            <div class="card-name">${r.name}</div>
+            <div class="card-ticker">${r.ticker}</div>
+          </div>
+        </div>
+        <div class="score-badge">AI 점수 ${r.score}점</div>
+      </div>
+
+      <div class="entry-plan">
+        <div class="plan-cell buy-price">
+          <div class="label">▶ 매수가</div>
+          <div class="value">${fmt(p.buy_price)}원</div>
+        </div>
+        <div class="plan-cell target-price">
+          <div class="label">🎯 목표가 +5%</div>
+          <div class="value">${fmt(p.target_price)}원</div>
+        </div>
+        <div class="plan-cell stop-loss">
+          <div class="label">🛑 손절가 -2.5%</div>
+          <div class="value">${fmt(p.stop_loss)}원</div>
+        </div>
+      </div>
+
+      <div class="checks">
+        <div class="check-item">
+          <div class="check-icon check-supply">수</div>
+          <div><span class="check-label">수급</span>${r.supply_check}</div>
+        </div>
+        <div class="check-item">
+          <div class="check-icon check-catalyst">재</div>
+          <div><span class="check-label">재료</span>${r.catalyst_check}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+
+  content.innerHTML = title + `<div class="cards">${cards}</div>`;
+}
+
+load();
+</script>
+</body>
+</html>

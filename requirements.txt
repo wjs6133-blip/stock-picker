@@ -1,0 +1,4 @@
+pykrx
+anthropic
+requests
+beautifulsoup4
