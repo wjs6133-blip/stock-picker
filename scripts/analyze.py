@@ -14,6 +14,7 @@ from google import genai
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from pykrx import stock as pkrx
 
 VOLUME_CONTRACTION = 0.65
 MA20_BAND          = 0.04
@@ -117,20 +118,21 @@ def get_chart_series(ticker: str) -> list:
 
 
 def get_supply(ticker: str) -> dict:
-    """네이버 외국인 3일 순매수"""
+    """pykrx KRX 외국인 3일 순매수"""
     try:
-        url  = f"https://finance.naver.com/item/frgn.naver?code={ticker}"
-        res  = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
-        soup = BeautifulSoup(res.text, "html.parser")
-        daily = []
-        for row in soup.select("table.type2 tr")[1:4]:
-            cols = row.select("td")
-            if len(cols) >= 5:
-                txt = cols[4].get_text(strip=True).replace(",", "").replace("+", "")
-                try:
-                    daily.append(int(txt))
-                except Exception:
-                    daily.append(0)
+        end   = datetime.now()
+        start = end - timedelta(days=10)
+        df = pkrx.get_market_trading_value_by_date(
+            start.strftime("%Y%m%d"), end.strftime("%Y%m%d"), ticker
+        )
+        if df is None or df.empty:
+            return {"foreign_net_3d": 0, "foreign_daily": []}
+        # 외국인 열 찾기
+        col = next((c for c in df.columns if "외국인" in c), None)
+        if col is None:
+            return {"foreign_net_3d": 0, "foreign_daily": []}
+        daily = [int(v) for v in df[col].iloc[-3:].tolist()]
+        daily.reverse()  # 최신순
         return {"foreign_net_3d": sum(daily), "foreign_daily": daily}
     except Exception:
         return {"foreign_net_3d": 0, "foreign_daily": []}

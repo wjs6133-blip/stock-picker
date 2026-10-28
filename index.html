@@ -387,14 +387,16 @@ function renderChart(cardIdx) {
     return;
   }
 
+  const w = container.offsetWidth || container.parentElement?.offsetWidth || 600;
+  const h = 300;
   const chart = LightweightCharts.createChart(container, {
     layout: { background: { color: "#0d1117" }, textColor: "#7d8590" },
     grid: { vertLines: { color: "#21262d" }, horzLines: { color: "#21262d" } },
     crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
     rightPriceScale: { borderColor: "#30363d" },
     timeScale: { borderColor: "#30363d", timeVisible: true },
-    width: container.clientWidth,
-    height: container.clientHeight,
+    width: w,
+    height: h,
   });
 
   // 캔들
@@ -579,7 +581,7 @@ async function loadRecs() {
       <div class="cards">${html}</div>`;
 
     // 첫 번째 카드 차트 자동 렌더
-    setTimeout(() => renderChart(0), 50);
+    setTimeout(() => renderChart(0), 150);
 
   } catch(e) {
     result.innerHTML = `
