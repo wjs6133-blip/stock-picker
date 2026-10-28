@@ -472,7 +472,15 @@ function buildCatalystHtml(r) {
       <span>${n}</span>
     </div>`).join("");
 
+  const stars = r.catalyst_stars || 0;
+  const starHtml = `<span style="letter-spacing:1px">${'★'.repeat(stars)}${'☆'.repeat(5-stars)}</span>`;
+  const starColor = stars >= 4 ? '#f0a400' : stars === 3 ? '#c9d1d9' : '#484f58';
+
   const summaryBlock = r.catalyst_summary ? `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;padding:10px 14px;background:#161b22;border-radius:8px;border:1px solid #30363d">
+      <div style="font-size:20px;color:${starColor}">${starHtml}</div>
+      <div style="font-size:12px;color:${starColor};font-weight:700">${['','약함','다소 약함','보통','유효','강력'][stars] || ''}</div>
+    </div>
     <div class="reason-block">
       <div class="reason-icon ri-catalyst" style="font-size:13px">핵</div>
       <div class="reason-text"><span class="reason-lbl">핵심 근거:</span>${r.catalyst_summary}</div>
