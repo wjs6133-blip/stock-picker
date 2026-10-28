@@ -193,7 +193,7 @@ def ask_gemini(candidates: list) -> list:
   }}
 ]"""
 
-    raw = client.models.generate_content(model="gemini-3.8-flash", contents=prompt).text.strip()
+    raw = client.models.generate_content(model="gemini-2.0-flash", contents=prompt).text.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
     try:
         return json.loads(raw)
