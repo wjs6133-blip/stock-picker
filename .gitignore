@@ -1,1 +1,9 @@
 .vercel
+__pycache__/
+*.pyc
+data/job_log.txt
+data/jobs.json
+data/projects.json
+data/recs_latest.json
+data/run.json
+data/runs.json
