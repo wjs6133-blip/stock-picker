@@ -1,0 +1,105 @@
+{
+  "total_count": 1,
+  "jobs": [
+    {
+      "id": 122673586451,
+      "run_id": 40645604125,
+      "workflow_name": "Daily Stock Analysis",
+      "head_branch": "main",
+      "run_url": "https://api.github.com/repos/wjs6133-blip/stock-picker/actions/runs/40645604125",
+      "run_attempt": 1,
+      "node_id": "CR_kwDOVZ823M8AAAAcj-phEw",
+      "head_sha": "325345509c7dcdbaa030081dce4e9fdd311c1543",
+      "url": "https://api.github.com/repos/wjs6133-blip/stock-picker/actions/jobs/122673586451",
+      "html_url": "https://github.com/wjs6133-blip/stock-picker/actions/runs/40645604125/job/122673586451",
+      "status": "completed",
+      "conclusion": "success",
+      "created_at": "2026-10-28T06:43:38Z",
+      "started_at": "2026-10-28T06:43:40Z",
+      "completed_at": "2026-10-28T07:01:35Z",
+      "name": "analyze",
+      "steps": [
+        {
+          "name": "Set up job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 1,
+          "started_at": "2026-10-28T06:43:41Z",
+          "completed_at": "2026-10-28T06:43:42Z"
+        },
+        {
+          "name": "Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 2,
+          "started_at": "2026-10-28T06:43:42Z",
+          "completed_at": "2026-10-28T06:43:45Z"
+        },
+        {
+          "name": "Set up Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 3,
+          "started_at": "2026-10-28T06:43:45Z",
+          "completed_at": "2026-10-28T06:43:50Z"
+        },
+        {
+          "name": "Install dependencies",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 4,
+          "started_at": "2026-10-28T06:43:50Z",
+          "completed_at": "2026-10-28T06:44:11Z"
+        },
+        {
+          "name": "Run full analysis",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 5,
+          "started_at": "2026-10-28T06:44:11Z",
+          "completed_at": "2026-10-28T07:01:29Z"
+        },
+        {
+          "name": "Commit and push",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 6,
+          "started_at": "2026-10-28T07:01:29Z",
+          "completed_at": "2026-10-28T07:01:31Z"
+        },
+        {
+          "name": "Post Set up Python",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 11,
+          "started_at": "2026-10-28T07:01:31Z",
+          "completed_at": "2026-10-28T07:01:33Z"
+        },
+        {
+          "name": "Post Checkout",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 12,
+          "started_at": "2026-10-28T07:01:33Z",
+          "completed_at": "2026-10-28T07:01:34Z"
+        },
+        {
+          "name": "Complete job",
+          "status": "completed",
+          "conclusion": "success",
+          "number": 13,
+          "started_at": "2026-10-28T07:01:34Z",
+          "completed_at": "2026-10-28T07:01:34Z"
+        }
+      ],
+      "check_run_url": "https://api.github.com/repos/wjs6133-blip/stock-picker/check-runs/122673586451",
+      "labels": [
+        "ubuntu-latest"
+      ],
+      "runner_id": 1000000012,
+      "runner_name": "GitHub Actions 1000000012",
+      "runner_group_id": 0,
+      "runner_group_name": "GitHub Actions"
+    }
+  ]
+}
