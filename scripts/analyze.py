@@ -10,7 +10,7 @@ import time
 from datetime import datetime, timedelta
 
 import FinanceDataReader as fdr
-import google.generativeai as genai
+from google import genai
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -149,8 +149,7 @@ def get_news(ticker: str) -> list:
 # ── Gemini 심사 ───────────────────────────────────────────────
 
 def ask_gemini(candidates: list) -> list:
-    genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-    model = genai.GenerativeModel("gemini-1.5-flash")
+    client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
     slim     = [{k: v for k, v in c.items() if k not in ("chart_data",)} for c in candidates]
     data_str = json.dumps(slim, ensure_ascii=False, indent=2)
@@ -194,7 +193,7 @@ def ask_gemini(candidates: list) -> list:
   }}
 ]"""
 
-    raw = model.generate_content(prompt).text.strip()
+    raw = client.models.generate_content(model="gemini-1.5-flash", contents=prompt).text.strip()
     raw = raw.replace("```json", "").replace("```", "").strip()
     try:
         return json.loads(raw)
