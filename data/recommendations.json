@@ -1,7 +1,7 @@
 {
-  "date": "000000",
-  "updated_at": "아직 분석 전",
-  "candidates_count": 0,
-  "message": "GitHub Actions가 매일 오전 6시에 자동 분석합니다. 수동 실행하려면 Actions 탭 → Daily Stock Analysis → Run workflow",
+  "date": "20261028",
+  "updated_at": "2026-10-28 04:14",
+  "candidates_count": 15,
+  "message": "후보 15개 중 0개 통과",
   "recommendations": []
 }
