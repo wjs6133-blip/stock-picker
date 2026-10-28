@@ -516,8 +516,7 @@ function buildCard(r, i) {
 
     <div class="tabs">
       <button class="tab-btn active" data-tab="chart" onclick="switchTab(${i}, 'chart')">📊 차트</button>
-      <button class="tab-btn"        data-tab="supply" onclick="switchTab(${i}, 'supply')">💹 수급</button>
-      <button class="tab-btn"        data-tab="catalyst" onclick="switchTab(${i}, 'catalyst')">📰 재료</button>
+      <button class="tab-btn"        data-tab="catalyst" onclick="switchTab(${i}, 'catalyst')">📰 재료·뉴스</button>
     </div>
 
     <div class="tab-panel active" data-panel="chart">
@@ -528,10 +527,6 @@ function buildCard(r, i) {
         <span><span class="legend-dot" style="background:#f0a400"></span>MA20</span>
         <span><span class="legend-dot" style="background:#58a6ff"></span>MA60</span>
       </div>
-    </div>
-
-    <div class="tab-panel" data-panel="supply">
-      ${buildSupplyHtml(r.supply_data)}
     </div>
 
     <div class="tab-panel" data-panel="catalyst">
