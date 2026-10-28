@@ -1,4 +1,6 @@
-pykrx==1.0.45
+finance-datareader
 google-generativeai
 requests
 beautifulsoup4
+lxml
+pandas

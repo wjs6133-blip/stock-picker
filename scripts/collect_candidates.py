@@ -1,15 +1,16 @@
 """
-GitHub Actions 전용: pykrx로 눌림목 후보 수집 → data/candidates.json 저장
-AI 분석 없음 (버튼 클릭 시 실시간으로 Gemini가 처리)
+GitHub Actions 전용: FinanceDataReader로 눌림목 후보 수집
+→ data/candidates.json 저장 (AI 분석 없음, 버튼 클릭 시 Gemini가 실시간 처리)
 """
 import json
 import os
 import time
 from datetime import datetime, timedelta
 
+import FinanceDataReader as fdr
+import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from pykrx import stock
 
 VOLUME_CONTRACTION = 0.65
 MA20_BAND          = 0.04
@@ -18,52 +19,55 @@ DRAWDOWN_MAX       = -0.03
 MAX_CANDIDATES     = 15
 
 
-def get_trading_date() -> str:
-    t = datetime.now()
-    if t.weekday() == 0:
-        t -= timedelta(days=3)
-    elif t.weekday() == 6:
-        t -= timedelta(days=2)
-    else:
-        t -= timedelta(days=1)
-    return t.strftime("%Y%m%d")
+def get_all_tickers_with_names() -> dict:
+    """KRX 전종목 코드 → 이름 딕셔너리"""
+    df = fdr.StockListing('KRX')
+    # 컬럼명 유연하게 처리
+    code_col = next((c for c in ['Code', 'Symbol', 'ISU_SRT_CD'] if c in df.columns), df.columns[0])
+    name_col = next((c for c in ['Name', 'ISU_NM', 'CompanyName'] if c in df.columns), df.columns[1])
+    return dict(zip(df[code_col].astype(str), df[name_col].astype(str)))
 
 
-def get_all_tickers():
-    return list(stock.get_market_ticker_list(market="KOSPI")) + \
-           list(stock.get_market_ticker_list(market="KOSDAQ"))
-
-
-def analyze_chart(ticker, date):
+def analyze_chart(ticker: str) -> dict | None:
+    """눌림목 차트 필터"""
     try:
-        end   = date
-        start = (datetime.strptime(date, "%Y%m%d") - timedelta(days=100)).strftime("%Y%m%d")
-        df    = stock.get_market_ohlcv_by_date(start, end, ticker)
-        if len(df) < 62:
+        end   = datetime.now()
+        start = end - timedelta(days=130)
+
+        df = fdr.DataReader(ticker, start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
+        if df is None or len(df) < 62:
             return None
 
-        close  = df["종가"]
-        volume = df["거래량"]
-        ma20   = close.rolling(20).mean()
-        ma60   = close.rolling(60).mean()
+        close  = df['Close'].astype(float)
+        volume = df['Volume'].astype(float)
+
+        ma20 = close.rolling(20).mean()
+        ma60 = close.rolling(60).mean()
 
         cur      = float(close.iloc[-1])
         cur_ma20 = float(ma20.iloc[-1])
         cur_ma60 = float(ma60.iloc[-1])
 
+        if pd.isna(cur_ma20) or pd.isna(cur_ma60) or cur == 0:
+            return None
+
+        # 1) 정배열 (20일선 > 60일선)
         if cur_ma20 < cur_ma60:
             return None
 
+        # 2) 현재가 20일선 ±4% 이내
         gap = (cur - cur_ma20) / cur_ma20
         if not (DRAWDOWN_MAX <= gap <= MA20_BAND):
             return None
 
+        # 3) 거래량 수축
         recent_vol = float(volume.iloc[-5:].mean())
         base_vol   = float(volume.iloc[-25:-5].mean())
-        vol_ratio  = recent_vol / base_vol if base_vol else 1.0
+        vol_ratio  = recent_vol / base_vol if base_vol > 0 else 1.0
         if vol_ratio > VOLUME_CONTRACTION:
             return None
 
+        # 4) 고점 대비 조정폭
         high30 = float(close.iloc[-30:].max())
         dd     = (cur - high30) / high30
         if not (DRAWDOWN_MIN <= dd <= DRAWDOWN_MAX):
@@ -82,32 +86,31 @@ def analyze_chart(ticker, date):
         return None
 
 
-def get_supply(ticker, date):
+def get_supply_naver(ticker: str) -> dict:
+    """네이버 금융 외인·기관 수급 스크래핑 (실패 시 빈 dict)"""
     try:
-        end   = date
-        start = (datetime.strptime(date, "%Y%m%d") - timedelta(days=14)).strftime("%Y%m%d")
-        df    = stock.get_market_trading_value_by_date(start, end, ticker)
-        if len(df) < 3:
-            return None
+        url  = f"https://finance.naver.com/item/frgn.naver?code={ticker}"
+        res  = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
+        soup = BeautifulSoup(res.text, "html.parser")
 
-        r     = df.iloc[-3:]
-        f_net = int(r["외국인합계"].sum())
-        i_net = int(r["기관합계"].sum())
-        p_net = int(r["개인"].sum())
+        rows = soup.select("table.type2 tr")
+        values = []
+        for row in rows[1:4]:  # 최근 3일
+            cols = row.select("td")
+            if len(cols) >= 5:
+                try:
+                    val = cols[4].get_text(strip=True).replace(",", "").replace("+", "")
+                    values.append(int(val) if val and val != "-" else 0)
+                except Exception:
+                    values.append(0)
 
-        if p_net > 0 and f_net < 0 and i_net < 0:
-            return None
-
-        return {
-            "foreign_net_3d"    : f_net,
-            "institution_net_3d": i_net,
-            "individual_net_3d" : p_net,
-        }
+        foreign_3d = sum(values) if values else None
+        return {"foreign_net_3d_approx": foreign_3d, "supply_source": "naver_foreign"}
     except Exception:
-        return None
+        return {"foreign_net_3d_approx": None, "supply_source": "unavailable"}
 
 
-def scrape_news(ticker):
+def scrape_news(ticker: str) -> list[str]:
     try:
         url  = f"https://finance.naver.com/item/news_news.naver?code={ticker}&page=1"
         res  = requests.get(url, headers={"User-Agent": "Mozilla/5.0"}, timeout=6)
@@ -118,28 +121,28 @@ def scrape_news(ticker):
 
 
 def main():
-    date    = get_trading_date()
-    tickers = get_all_tickers()
-    print(f"기준일: {date} | 전종목: {len(tickers)}개")
+    print(f"[{datetime.now().strftime('%H:%M:%S')}] 후보 수집 시작")
+
+    name_map = get_all_tickers_with_names()
+    tickers  = list(name_map.keys())
+    print(f"전종목: {len(tickers)}개")
 
     candidates = []
     for i, ticker in enumerate(tickers):
         if i % 200 == 0:
             print(f"  {i}/{len(tickers)} ...")
-            time.sleep(0.5)
+            time.sleep(0.3)
 
-        chart = analyze_chart(ticker, date)
+        chart = analyze_chart(ticker)
         if not chart:
             continue
 
-        supply = get_supply(ticker, date)
-        if not supply:
-            continue
-
-        name = stock.get_market_ticker_name(ticker)
-        news = scrape_news(ticker)
+        supply = get_supply_naver(ticker)
+        news   = scrape_news(ticker)
+        name   = name_map.get(ticker, ticker)
 
         candidates.append({**chart, "name": name, **supply, "recent_news": news})
+
         if len(candidates) >= MAX_CANDIDATES:
             break
 
@@ -148,10 +151,12 @@ def main():
     os.makedirs("data", exist_ok=True)
     with open("data/candidates.json", "w", encoding="utf-8") as f:
         json.dump({
-            "date"      : date,
+            "date"      : datetime.now().strftime("%Y%m%d"),
             "updated_at": datetime.now().strftime("%Y-%m-%d %H:%M"),
             "candidates": candidates,
         }, f, ensure_ascii=False, indent=2)
+
+    print("완료")
 
 
 if __name__ == "__main__":
