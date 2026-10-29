@@ -479,11 +479,31 @@
     padding-top: 8px;
   }
 
+  /* ── 종목 현재 차트 모달 ── */
+  .stock-chart-modal { z-index: 2000; }
+  .stock-chart-box { max-width: 800px; }
+
+  .hist-chart-name {
+    cursor: pointer;
+    transition: color .15s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .hist-chart-name:hover { color: #58a6ff; }
+  .hist-chart-icon {
+    font-size: 11px;
+    color: #484f58;
+    transition: color .15s;
+  }
+  .hist-chart-name:hover .hist-chart-icon { color: #58a6ff; }
+
   @media (max-width: 520px) {
     .price-grid { grid-template-columns: 1fr; }
     .card-header { flex-direction: column; }
     #mainBtn { width: 100%; padding: 17px; }
     .chart-wrap { height: 240px; }
+    .stock-chart-iframe { height: 380px; }
   }
 </style>
 </head>
@@ -539,6 +559,20 @@
     <div class="hist-result" id="histResult">
       <div style="text-align:center;color:#484f58;font-size:13px;padding:16px 0">날짜를 선택하면 추천 종목을 확인할 수 있습니다</div>
     </div>
+  </div>
+</div>
+
+<!-- 종목 현재 차트 모달 -->
+<div class="modal-overlay stock-chart-modal" id="stockChartModal" onclick="closeStockChart(event)">
+  <div class="modal-box stock-chart-box">
+    <div class="modal-head">
+      <div>
+        <h3 id="stockChartName" style="font-size:16px"></h3>
+        <div id="stockChartTickerLabel" style="font-size:12px;color:#58a6ff;margin-top:3px"></div>
+      </div>
+      <button class="modal-close" onclick="closeStockChartDirect()">✕</button>
+    </div>
+    <div id="stockChartContainer"></div>
   </div>
 </div>
 
@@ -930,6 +964,103 @@ async function startRealtime() {
   }, 1000);
 }
 
+// ── 종목 현재 차트 ────────────────────────────────────────────
+let _stockChart = null;
+
+function openStockChart(ticker, name) {
+  document.getElementById("stockChartName").textContent = name;
+  document.getElementById("stockChartTickerLabel").textContent = ticker + " · 네이버금융 기준";
+
+  const container = document.getElementById("stockChartContainer");
+  container.innerHTML = `<div style="height:460px;display:flex;align-items:center;justify-content:center;gap:10px;color:#7d8590;font-size:14px"><div class="spinner"></div>차트 불러오는 중…</div>`;
+
+  document.getElementById("stockChartModal").classList.add("open");
+
+  fetch(`/api/chart?ticker=${ticker}`)
+    .then(r => r.json())
+    .then(({ data }) => {
+      if (!data || data.length === 0) {
+        container.innerHTML = `<div style="text-align:center;padding:40px;color:#7d8590">차트 데이터가 없습니다</div>`;
+        return;
+      }
+
+      // MA 계산
+      function calcMA(arr, n) {
+        return arr.map((_, i) => {
+          if (i < n - 1) return null;
+          return arr.slice(i - n + 1, i + 1).reduce((s, d) => s + d.close, 0) / n;
+        });
+      }
+      const ma20 = calcMA(data, 20);
+      const ma60 = calcMA(data, 60);
+
+      container.innerHTML = `
+        <div id="stockChartInner" style="height:460px;background:#0d1117;"></div>
+        <div style="display:flex;gap:16px;font-size:12px;color:#7d8590;padding:8px 16px 12px;flex-wrap:wrap">
+          <span><span style="display:inline-block;width:10px;height:3px;background:#ef5350;border-radius:2px;margin-right:4px;vertical-align:middle"></span>상승</span>
+          <span><span style="display:inline-block;width:10px;height:3px;background:#1976d2;border-radius:2px;margin-right:4px;vertical-align:middle"></span>하락</span>
+          <span><span style="display:inline-block;width:10px;height:3px;background:#f0a400;border-radius:2px;margin-right:4px;vertical-align:middle"></span>MA20</span>
+          <span><span style="display:inline-block;width:10px;height:3px;background:#58a6ff;border-radius:2px;margin-right:4px;vertical-align:middle"></span>MA60</span>
+        </div>`;
+
+      const inner = document.getElementById("stockChartInner");
+      if (_stockChart) { _stockChart.remove(); _stockChart = null; }
+
+      const chart = LightweightCharts.createChart(inner, {
+        layout: { background: { color: "#0d1117" }, textColor: "#7d8590" },
+        grid: { vertLines: { color: "#21262d" }, horzLines: { color: "#21262d" } },
+        crosshair: { mode: LightweightCharts.CrosshairMode.Normal },
+        rightPriceScale: { borderColor: "#30363d" },
+        timeScale: { borderColor: "#30363d", timeVisible: false },
+        width: inner.offsetWidth || 700,
+        height: 460,
+      });
+      _stockChart = chart;
+
+      const candle = chart.addCandlestickSeries({
+        upColor: "#ef5350", downColor: "#1976d2",
+        borderUpColor: "#ef5350", borderDownColor: "#1976d2",
+        wickUpColor: "#ef5350", wickDownColor: "#1976d2",
+      });
+      candle.setData(data.map(d => ({ time: d.time, open: d.open, high: d.high, low: d.low, close: d.close })));
+
+      const ma20s = chart.addLineSeries({ color: "#f0a400", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
+      ma20s.setData(data.map((d, i) => ma20[i] != null ? { time: d.time, value: ma20[i] } : null).filter(Boolean));
+
+      const ma60s = chart.addLineSeries({ color: "#58a6ff", lineWidth: 1.5, priceLineVisible: false, lastValueVisible: false });
+      ma60s.setData(data.map((d, i) => ma60[i] != null ? { time: d.time, value: ma60[i] } : null).filter(Boolean));
+
+      const volSeries = chart.addHistogramSeries({
+        priceFormat: { type: "volume" }, priceScaleId: "volume",
+        lastValueVisible: false, priceLineVisible: false,
+      });
+      chart.priceScale("volume").applyOptions({ scaleMargins: { top: 0.82, bottom: 0 } });
+      volSeries.setData(data.map((d, i) => ({
+        time: d.time, value: d.volume,
+        color: i > 0 && d.close >= data[i - 1].close ? "#ef535055" : "#1976d255",
+      })));
+
+      chart.timeScale().fitContent();
+      new ResizeObserver(() => {
+        const cw = inner.clientWidth;
+        if (cw > 0) chart.applyOptions({ width: cw });
+      }).observe(inner);
+    })
+    .catch(() => {
+      container.innerHTML = `<div style="text-align:center;padding:40px;color:#f85149">데이터를 불러오지 못했습니다</div>`;
+    });
+}
+
+function closeStockChartDirect() {
+  if (_stockChart) { _stockChart.remove(); _stockChart = null; }
+  document.getElementById("stockChartModal").classList.remove("open");
+  document.getElementById("stockChartContainer").innerHTML = "";
+}
+
+function closeStockChart(e) {
+  if (e.target === document.getElementById("stockChartModal")) closeStockChartDirect();
+}
+
 // ── 히스토리 달력 ─────────────────────────────────────────────
 let _histIndex  = [];          // ["20261028","20261025",...]
 let _calYear    = 0;
@@ -1068,13 +1199,15 @@ async function selectHistDate(dateKey) {
         perfBadge = `<div style="margin-top:10px;padding:7px 12px;background:#1a1f2a;border:1px solid #21262d;border-radius:8px;font-size:12px;color:#484f58">⏳ 성과 집계 중</div>`;
       }
 
+      const safeName = (r.name || r.ticker).replace(/\\/g, "\\\\").replace(/'/g, "\\'");
       return `
       <div class="hist-card">
         <div class="hist-card-top">
-          <div>
+          <div onclick="openStockChart('${r.ticker}', '${safeName}')" class="hist-chart-name" title="클릭하면 현재 차트를 볼 수 있습니다">
             <div style="display:flex;align-items:center;gap:6px">
               <div style="width:22px;height:22px;background:linear-gradient(135deg,#238636,#2ea043);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${i+1}</div>
               <div class="hist-card-name">${r.name || r.ticker}</div>
+              <span class="hist-chart-icon">📊</span>
             </div>
             <div class="hist-card-ticker">${r.ticker} &nbsp;<span style="color:${starColor};letter-spacing:1px;font-size:11px">${starHtml}</span></div>
           </div>
