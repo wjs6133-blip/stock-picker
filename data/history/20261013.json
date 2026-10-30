@@ -1,0 +1,70 @@
+{
+  "date": "20261013",
+  "updated_at": "2026-10-13 00:00",
+  "recommendations": [
+    {
+      "ticker": "036460",
+      "name": "한국가스공사",
+      "score": 91,
+      "catalyst_summary": "KOSPI 5일 연속 하락의 약세장에서 20일선과 60일선 정배열을 견고하게 유지하고 있습니다. 20일선과의 이격이 +0.46%로 밀착된 상태에서 거래량이 평소 대비 64% 수준으로 수축되어 하방 경직성을 확보했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 36050,
+        "target_price": 37900,
+        "stop_loss": 35150,
+        "strategy": "36,000원 초반 20일선 지지선에서 비중의 60%를 1차 진입하고 35,900원 부근에서 40%를 분할 매수합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.94,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 36600
+      }
+    },
+    {
+      "ticker": "068930",
+      "name": "디지털대성",
+      "score": 89,
+      "catalyst_summary": "20일선(9,216원) 대비 +1.67% 위에 안착하여 단기 지지력을 확고히 다지고 있는 교육 방어주입니다. 거래량이 평소의 48%로 급감하며 매물 출회가 멈춘 전형적인 V자 반등 직전의 거래량 수축형 눌림목 패턴입니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 9370,
+        "target_price": 9850,
+        "stop_loss": 9130,
+        "strategy": "현재가 9,370원에서 50% 진입 후 9,300원 지지 재확인 시 나머지 50%를 채우는 2분할 매수 전략입니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.17,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 9240
+      }
+    },
+    {
+      "ticker": "052790",
+      "name": "액토즈소프트",
+      "score": 87,
+      "catalyst_summary": "20일선(4,410원) 및 60일선(4,178원) 위에서 단기 조정을 성공적으로 마무리하고 있는 정배열 종목입니다. 고점 대비 -7.85% 눌림 과정에서 거래량이 48% 수준으로 절반 이상 감소하여 건강한 차익실현 구간을 지났습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 4580,
+        "target_price": 4810,
+        "stop_loss": 4460,
+        "strategy": "4,550~4,580원 구간에서 1차 매수하고 20일선 상단인 4,500원 부근에서 2차 분할 매수합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 5.57,
+        "hit_date": "2026-10-19",
+        "days_to_hit": 4,
+        "final_close": 4530
+      }
+    }
+  ],
+  "performance_checked": true
+}

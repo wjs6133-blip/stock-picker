@@ -1,0 +1,70 @@
+{
+  "date": "20261001",
+  "updated_at": "2026-10-01 00:00",
+  "recommendations": [
+    {
+      "ticker": "190510",
+      "name": "나무가",
+      "score": 94,
+      "catalyst_summary": "60일선과 20일선이 완벽한 정배열을 유지하는 가운데, 거래량이 평소 대비 21% 수준으로 극단적 수축을 보이며 전형적인 매도 공백 눌림목을 형성했습니다. 고점 대비 -3.52%의 얕은 기간 조정을 거쳐 20일선 상단 지지가 견고하게 확인되었습니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 15900,
+        "target_price": 16700,
+        "stop_loss": 15500,
+        "strategy": "기준가 15,900원 부근에서 즉시 1차 진입하고 20일선 상단 지지선 이탈 방어에 집중합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 0.75,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 14660
+      }
+    },
+    {
+      "ticker": "443060",
+      "name": "HD현대마린솔루션",
+      "score": 91,
+      "catalyst_summary": "우상향하는 20일선 위에서 고점 대비 -4.05%의 건전한 조정을 마친 후 거래량이 46% 수준으로 안정적 수축을 보였습니다. 60일선(209,585원)과 20일선(229,200원)의 정배열 탄력이 매우 강해 반등 신뢰도가 높습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 237000,
+        "target_price": 249000,
+        "stop_loss": 231000,
+        "strategy": "시초가 매수 후 235,000원 이하 흔들기 발생 시 비중을 채우는 2분할 매수 전략을 권장합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -1.05,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 211000
+      }
+    },
+    {
+      "ticker": "090460",
+      "name": "비에이치",
+      "score": 89,
+      "catalyst_summary": "고점 대비 -5.91%의 충분한 가격 조정을 완료하고 20일선 직전에서 하방 경직성을 확보했습니다. 거래량이 평소 대비 37%로 수축하며 손바뀜 후 단기 저점 형성 징후를 명확히 보여줍니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 20700,
+        "target_price": 21750,
+        "stop_loss": 20180,
+        "strategy": "20,700원 기준가 매수 후 20일선(20,087원) 훼손 직전인 20,180원을 엄격한 손절 기준으로 설정합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 9.18,
+        "hit_date": "2026-10-06",
+        "days_to_hit": 2,
+        "final_close": 18500
+      }
+    }
+  ],
+  "performance_checked": true
+}

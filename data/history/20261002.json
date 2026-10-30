@@ -1,0 +1,70 @@
+{
+  "date": "20261002",
+  "updated_at": "2026-10-02 00:00",
+  "recommendations": [
+    {
+      "ticker": "044490",
+      "name": "태웅",
+      "score": 94,
+      "catalyst_summary": "60일선 대비 20일선의 가파른 우상향 정배열 구간에서 고점 대비 -5.47%의 이상적인 가격 조정을 거쳤습니다. 직전 거래량 대비 33% 수준으로 거래량이 극단적으로 메마른 전형적인 지지 눌림목 패턴입니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 38050,
+        "target_price": 39950,
+        "stop_loss": 37100,
+        "strategy": "현재가 부근 시초가 진입 후 20일선 부근까지 눌릴 시 2분할 매수, 20일선 이탈 시 손절 대응."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 0.26,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 26950
+      }
+    },
+    {
+      "ticker": "108490",
+      "name": "로보티즈",
+      "score": 92,
+      "catalyst_summary": "60일선(251,901원)에서 20일선(302,650원)으로 이어지는 추세 강도가 매우 우수한 주도주 흐름입니다. 고점 대비 -5.31% 조정과 함께 거래량이 평소의 47%로 수축되어 20일선 지지 기반 반등 임계점에 도달했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 312000,
+        "target_price": 327500,
+        "stop_loss": 304000,
+        "strategy": "312,000원 전후 분할 매수 체결 후 20일선(302,650원) 위협 전인 304,000원 손절선 엄수."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.6,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 231500
+      }
+    },
+    {
+      "ticker": "128940",
+      "name": "한미약품",
+      "score": 89,
+      "catalyst_summary": "대형 제약주 중 가장 견고한 정배열 상승각을 유지하며 20일선 지지를 테스트하고 있습니다. 거래량이 55%로 절반가량 급감하며 -6.67% 수준의 건강한 눌림목 조정을 완성했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 504000,
+        "target_price": 529000,
+        "stop_loss": 491500,
+        "strategy": "504,000원 이하에서 차분히 비중을 확보하고 20일선 하향 이탈인 491,500원 터치 시 기계적 손절."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 5.95,
+        "hit_date": "2026-10-06",
+        "days_to_hit": 1,
+        "final_close": 371500
+      }
+    }
+  ],
+  "performance_checked": true
+}
