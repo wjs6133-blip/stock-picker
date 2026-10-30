@@ -1,0 +1,70 @@
+{
+  "date": "20260921",
+  "updated_at": "2026-09-21 00:00",
+  "recommendations": [
+    {
+      "ticker": "034020",
+      "name": "두산에너빌리티",
+      "score": 93,
+      "catalyst_summary": "MA20 대비 +1.50% 상단에서 견고하게 지지를 확보하며 정배열 추세를 유지하고 있습니다. 고점 대비 -5.67%의 건전한 가격 조정을 거쳤으며, 거래량이 63% 수준으로 수축하여 전형적인 기술적 눌림목 반등 구간에 진입했습니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 86500,
+        "target_price": 90800,
+        "stop_loss": 84300,
+        "strategy": "기준가 부근에서 비중의 70%를 선취매하고 85,500원 지지 테스트 시 잔여 비중을 분할 매수합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 0.12,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 76700
+      }
+    },
+    {
+      "ticker": "180640",
+      "name": "한진칼",
+      "score": 91,
+      "catalyst_summary": "MA20 대비 +1.58% 위에서 횡보하며 단기 차익 매물을 완전히 소화했습니다. 거래량이 평소 대비 58%까지 급감하며 완벽한 수급 공백형 눌림목을 형성해 2주 내 기술적 반등 가능성이 매우 높습니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 139100,
+        "target_price": 146100,
+        "stop_loss": 135600,
+        "strategy": "시초가 매수 후 137,000원 부근 20일선 터치 시 추가 분할 매수로 평균단가를 관리합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.65,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 129800
+      }
+    },
+    {
+      "ticker": "000720",
+      "name": "현대건설",
+      "score": 88,
+      "catalyst_summary": "현재가가 MA20과 불과 0.22% 차이로 초밀착되어 있어 매우 명확한 손절 기준을 제공합니다. -6.38%의 충분한 가격 조정과 거래량 수축(0.59)이 동시에 나타나 하방 경직성이 탁월합니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 126300,
+        "target_price": 132600,
+        "stop_loss": 123100,
+        "strategy": "20일선 지지 확인 즉시 1차 진입하고 반등 시작 시 피라미딩 방식으로 물량을 확보합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 4.35,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 106300
+      }
+    }
+  ],
+  "performance_checked": true
+}

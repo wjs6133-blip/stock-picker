@@ -1,0 +1,70 @@
+{
+  "date": "20260910",
+  "updated_at": "2026-09-10 00:00",
+  "recommendations": [
+    {
+      "ticker": "282330",
+      "name": "BGF리테일",
+      "score": 94,
+      "catalyst_summary": "MA20선과의 이격이 +1.26%로 이평선 지지를 완벽히 확인하며 이상적인 얕은 눌림목을 형성했습니다. 직전 고점 대비 낙폭이 -3.33%에 불과하고 거래량이 전일 대비 54% 수준으로 수축되어 매도 압력이 사실상 소진된 상태입니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 148000,
+        "target_price": 155400,
+        "stop_loss": 144300,
+        "strategy": "기준가 148,000원 전후에서 시초가 진입 후 20일 이평선(146,160원) 지지 여부를 체크하며 보유합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -2.03,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 133500
+      }
+    },
+    {
+      "ticker": "089860",
+      "name": "롯데렌탈",
+      "score": 92,
+      "catalyst_summary": "60일선 대비 20일선의 가파른 우상향 이격 확장이 이어지는 가운데 20일선 위 +2.74% 구간에서 안정적인 숨고르기를 보이고 있습니다. 거래량 비율이 0.45로 대폭 감소하여 건전한 매물 소화 과정을 거쳤습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 49100,
+        "target_price": 51550,
+        "stop_loss": 47870,
+        "strategy": "49,100원 부근에서 1차 매수 후 20일선(47,790원) 상단을 지지선으로 잡고 10영업일 내 직전 고점 돌파를 노립니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.12,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 49550
+      }
+    },
+    {
+      "ticker": "092230",
+      "name": "KPX홀딩스",
+      "score": 91,
+      "catalyst_summary": "거래량 비율이 0.37까지 급감하여 완벽한 호가 공백성 눌림목을 형성하고 있습니다. 고점 대비 낙폭이 -3.64%에 불과하며 20일 이평선 위 +2.14% 수준에서 정석적인 가격 지지를 보이고 있습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 100500,
+        "target_price": 105500,
+        "stop_loss": 98000,
+        "strategy": "100,500원 기준가에 진입하며, 20일선 지지선(98,390원) 하회 시인 98,000원에 철저한 기계적 손절을 설정합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -2.09,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 96900
+      }
+    }
+  ],
+  "performance_checked": true
+}

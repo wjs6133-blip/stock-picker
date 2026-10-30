@@ -1,0 +1,70 @@
+{
+  "date": "20260909",
+  "updated_at": "2026-09-09 00:00",
+  "recommendations": [
+    {
+      "ticker": "284740",
+      "name": "쿠쿠홈시스",
+      "score": 92,
+      "catalyst_summary": "정배열 추세 속에서 20일 이동평균선 바로 위(+1.35%)까지 질서 있게 내려앉은 정석 눌림목입니다. 거래량이 직전 대비 56% 수준으로 완연히 수축되며 매도 압력이 소멸된 전형적인 기술적 반등 타점입니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 23200,
+        "target_price": 24360,
+        "stop_loss": 22620,
+        "strategy": "기준가 23,200원에 시초가 진입하고 20일선 이탈 시 기계적으로 손절하는 1회 일괄 매수 전략을 권장합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 3.23,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 23800
+      }
+    },
+    {
+      "ticker": "025980",
+      "name": "아난티",
+      "score": 90,
+      "catalyst_summary": "MA60 대비 MA20이 가파르게 상승하며 강력한 모멘텀을 형성한 후 고점 대비 -8.58%의 건강한 조정을 마쳤습니다. 거래량이 50% 수준으로 절반 가까이 줄어든 상태에서 20일선 상단 지지를 확보했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 5220,
+        "target_price": 5480,
+        "stop_loss": 5090,
+        "strategy": "5,220원 부근에서 진입하되 20일선 지지선인 5,100원 부근까지 분할 매수로 접근하여 평단을 낮추는 전략이 유리합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 5.75,
+        "hit_date": "2026-09-22",
+        "days_to_hit": 9,
+        "final_close": 5260
+      }
+    },
+    {
+      "ticker": "298020",
+      "name": "효성티앤씨",
+      "score": 88,
+      "catalyst_summary": "60일선에서 20일선으로 이어지는 전형적인 대형 우량주의 우상향 정배열 차트를 보여줍니다. 고점 대비 -3.80%의 얕은 숨고르기 국면에서 거래량이 64%로 줄어들며 20일선 안착을 시험하고 있습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 342000,
+        "target_price": 359100,
+        "stop_loss": 333500,
+        "strategy": "342,000원 기준선에서 1차 진입 후 20일선(333,425원) 지지를 마지노선으로 삼는 손익비 중심 트레이딩을 권장합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 0.29,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 311000
+      }
+    }
+  ],
+  "performance_checked": true
+}

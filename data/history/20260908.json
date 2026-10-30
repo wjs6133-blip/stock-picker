@@ -1,0 +1,70 @@
+{
+  "date": "20260908",
+  "updated_at": "2026-09-08 00:00",
+  "recommendations": [
+    {
+      "ticker": "006360",
+      "name": "GS건설",
+      "score": 94,
+      "catalyst_summary": "60일선 대비 20일선이 15% 이상 크게 우상향하는 강한 정배열 국면에서 직전 고점 대비 -6.75%의 건강한 조정을 완료했습니다. 거래량이 평소의 50% 수준으로 정밀하게 수축하며 20일선(이격도 +0.74%) 지지력을 확보해 반등 모멘텀이 극대화된 전형적인 눌림목입니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 35250,
+        "target_price": 37050,
+        "stop_loss": 34350,
+        "strategy": "기준가 부근에서 전량 즉시 진입 후 20일선 이탈을 방어선으로 설정하는 단기 스윙 전략입니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 9.22,
+        "hit_date": "2026-09-10",
+        "days_to_hit": 2,
+        "final_close": 37500
+      }
+    },
+    {
+      "ticker": "003300",
+      "name": "한일홀딩스",
+      "score": 91,
+      "catalyst_summary": "정배열 추세 내에서 직전 고점 대비 -5.01%의 얕은 조정을 거치며 20일선과의 이격도를 +0.50%까지 좁혔습니다. 거래량이 54% 수준으로 마르며 가격 변동성이 축소된 전형적인 변곡점 구간입니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 18200,
+        "target_price": 19100,
+        "stop_loss": 17750,
+        "strategy": "20일선 밀착 구간에서 진입하여 -2.5% 손절선을 엄격히 준수하며 +5% 목표 도달 시 전량 청산합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -0.6,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 17650
+      }
+    },
+    {
+      "ticker": "322000",
+      "name": "HD현대에너지솔루션",
+      "score": 89,
+      "catalyst_summary": "20일선과 60일선의 정배열 상태에서 고점 대비 -5.83% 조정 후 20일선 상단 지지를 확인했습니다. 거래량이 52%로 급감하며 저점 매수세가 지지선을 방어하는 전형적인 반등 준비 캔들을 형성했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 134000,
+        "target_price": 140700,
+        "stop_loss": 130500,
+        "strategy": "기준가 매수 후 20일선(131,700원선) 지지 여부를 모니터링하며 10영업일 내 목표가 청산을 노립니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 6.79,
+        "hit_date": "2026-09-09",
+        "days_to_hit": 1,
+        "final_close": 117700
+      }
+    }
+  ],
+  "performance_checked": true
+}

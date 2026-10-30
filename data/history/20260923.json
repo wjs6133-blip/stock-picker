@@ -1,0 +1,70 @@
+{
+  "date": "20260923",
+  "updated_at": "2026-09-23 00:00",
+  "recommendations": [
+    {
+      "ticker": "108490",
+      "name": "로보티즈",
+      "score": 93,
+      "catalyst_summary": "MA20선 대비 +3.25% 상단에서 견조한 지지력을 확보하며 상승 추세를 완벽히 유지하고 있습니다. 직전 고점 대비 8.5%의 건전한 가격 조정을 거친 후 거래량이 전일 대비 0.56배로 수축되어 단기 매도 압력이 소진되었습니다. KOSPI 강세장 속에서 주도 테마의 탄력을 받아 10영업일 내 5% 이상의 기술적 반등을 이끌어낼 최적의 구간입니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 301500,
+        "target_price": 317000,
+        "stop_loss": 294000,
+        "strategy": "기준가 301,500원 부근에서 진입하고 20일선(292,000원) 이탈 전인 294,000원을 명확한 손절선으로 잡고 대응합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 5.14,
+        "hit_date": "2026-10-06",
+        "days_to_hit": 6,
+        "final_close": 250500
+      }
+    },
+    {
+      "ticker": "096530",
+      "name": "씨젠",
+      "score": 91,
+      "catalyst_summary": "MA20선(32,597원)을 단단하게 지지대로 삼아 +3.84% 이격을 두고 정배열 상승 흐름을 이어가고 있습니다. 고점 대비 -5.05%의 얕은 눌림목을 기록하며 거래량이 0.64배로 축소되어 매수 우위의 차트 패턴을 완성했습니다. 시장 상승 모멘텀과 맞물려 상방 저항 구간까지 빠른 탄력 반등이 기대됩니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 33850,
+        "target_price": 35600,
+        "stop_loss": 33000,
+        "strategy": "33,850원 부근에서 매수 후 20일선 근접 지점인 33,000원 이탈 시 기계적으로 손절하는 전략을 실행합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 14.62,
+        "hit_date": "2026-10-01",
+        "days_to_hit": 4,
+        "final_close": 36550
+      }
+    },
+    {
+      "ticker": "316140",
+      "name": "우리금융지주",
+      "score": 88,
+      "catalyst_summary": "20일선과의 이격이 +1.7%로 20일 이동평균선에 매우 근접하여 하방 경직성을 완벽히 확보한 자리입니다. 고점 대비 -3.53%의 제한적인 낙폭과 거래량 0.62배 수축으로 단기 매도세가 완전히 말라붙은 상태입니다. 손절선 대비 상방 목표치인 +5%까지 손익비가 가장 우수한 종목 중 하나입니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 35500,
+        "target_price": 37300,
+        "stop_loss": 34600,
+        "strategy": "35,500원 현재가에서 매수 진입하며 20일선(34,907원) 하회를 방어선으로 삼아 34,600원 손절선으로 리스크를 통제합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 2.11,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 31800
+      }
+    }
+  ],
+  "performance_checked": true
+}

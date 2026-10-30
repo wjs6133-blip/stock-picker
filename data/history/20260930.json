@@ -1,0 +1,70 @@
+{
+  "date": "20260930",
+  "updated_at": "2026-09-30 00:00",
+  "recommendations": [
+    {
+      "ticker": "190510",
+      "name": "나무가",
+      "score": 92,
+      "catalyst_summary": "60일선과 20일선이 안정적인 정배열을 유지하는 가운데, 거래량이 평소 대비 25% 수준으로 극단적 수축을 보이며 전형적인 매도세 고갈 눌림목을 형성했습니다. 20일선 대비 +2.0% 위에서 가격 방어가 이루어지고 있어 지지선 기반 반등 가능성이 매우 높습니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 15510,
+        "target_price": 16300,
+        "stop_loss": 15120,
+        "strategy": "기준가 15,510원에 1차 진입하고 20일선(15,200원) 이탈 전까지 홀딩하며 손절선 엄수 전략을 취합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 3.29,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 14000
+      }
+    },
+    {
+      "ticker": "090460",
+      "name": "비에이치",
+      "score": 89,
+      "catalyst_summary": "60일선(18,002원) 대비 20일선(20,152원)의 기울기가 가파른 우상향을 기록 중이며, -7% 수준의 건강한 가격 조정을 마쳤습니다. 거래량이 43%로 반감된 채 20일선 지지력을 확보하여 단기 기술적 반등 타점이 형성되었습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 20450,
+        "target_price": 21500,
+        "stop_loss": 19940,
+        "strategy": "20,450원 이하 분할 매수로 접근하며 20,000원 라운드피겨 하향 돌파 시 즉시 손절 대응합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 10.51,
+        "hit_date": "2026-10-06",
+        "days_to_hit": 3,
+        "final_close": 17340
+      }
+    },
+    {
+      "ticker": "204620",
+      "name": "글로벌텍스프리",
+      "score": 87,
+      "catalyst_summary": "시장 약세장 속에서도 낙폭이 -4.47%에 불과할 정도로 상대적 강세를 유지하고 있습니다. 20일선(5,696원)과 이격이 +1.30%로 붙어 있으며 거래량이 절반(0.49)으로 감소해 매도 압력이 제어되고 있습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 5770,
+        "target_price": 6060,
+        "stop_loss": 5620,
+        "strategy": "시초가 5,770원 부근에서 진입하고 20일선 이탈 지점인 5,620원에 칼손절을 설정합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 3.12,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 5890
+      }
+    }
+  ],
+  "performance_checked": true
+}

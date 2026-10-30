@@ -1,0 +1,70 @@
+{
+  "date": "20260902",
+  "updated_at": "2026-09-02 00:00",
+  "recommendations": [
+    {
+      "ticker": "268280",
+      "name": "미원에스씨",
+      "score": 94,
+      "catalyst_summary": "시장 급락세 속에서도 고점 대비 -3.06% 수준으로 견조한 하방 경직성을 유지하고 있습니다. 거래량이 평소 대비 41% 수준으로 극도로 수축되며 매도세가 소진된 전형적인 정배열 눌림목 구간입니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 129900,
+        "target_price": 136500,
+        "stop_loss": 126600,
+        "strategy": "시초가 부근 129,900원에서 1차 진입하고 20일선 근접 시 추가 매수하여 평단을 관리합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 3.93,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 134800
+      }
+    },
+    {
+      "ticker": "033240",
+      "name": "자화전자",
+      "score": 91,
+      "catalyst_summary": "20일선 위에서 이격도 3.16%를 유지하며 약세장 속에서도 직전 상승폭을 안정적으로 지켜내고 있습니다. 거래량 비율이 0.44배로 급감하여 물량 출회가 제한된 정석적인 반등 대기형 차트입니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 29850,
+        "target_price": 31400,
+        "stop_loss": 29100,
+        "strategy": "29,850원 이하 분할 매수로 대응하며 20일선 이탈 직전인 29,100원 손절선을 엄격히 준수합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 2.51,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 25850
+      }
+    },
+    {
+      "ticker": "140410",
+      "name": "메지온",
+      "score": 87,
+      "catalyst_summary": "60일선과 20일선이 정배열을 그리는 가운데 20일선 대비 +3.17% 상단에서 견조한 가격 조정을 받고 있습니다. 거래량 비율 0.52배 수준으로 하락 매물이 마르면서 단기 기술적 반등 임계점에 도달했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 66100,
+        "target_price": 69500,
+        "stop_loss": 64400,
+        "strategy": "66,100원 전후로 비중의 50%를 진입하고 20일선 지지 확인 시 나머지를 채우는 분할 매수를 집행합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 11.95,
+        "hit_date": "2026-09-09",
+        "days_to_hit": 5,
+        "final_close": 72100
+      }
+    }
+  ],
+  "performance_checked": true
+}

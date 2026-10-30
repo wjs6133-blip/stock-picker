@@ -1,0 +1,70 @@
+{
+  "date": "20260918",
+  "updated_at": "2026-09-18 00:00",
+  "recommendations": [
+    {
+      "ticker": "003490",
+      "name": "대한항공",
+      "score": 94,
+      "catalyst_summary": "20일 이동평균선 대비 +0.84% 부근에서 정밀한 지지 테스트를 성공적으로 진행 중인 전형적인 우상향 눌림목 차트입니다. 전일 대비 거래량이 56% 수준으로 급감하며 매도 압력이 소진되었고, 20일선 이탈 시 손절선(-2.5%)이 매우 뚜렷하여 손익비가 탁월합니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 29150,
+        "target_price": 30650,
+        "stop_loss": 28400,
+        "strategy": "기준가 29,150원 부근에서 즉시 1차 진입하고 20일선(28,900원) 지지 확인 시 비중을 채우는 분할 매수 전략."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 9.95,
+        "hit_date": "2026-09-22",
+        "days_to_hit": 2,
+        "final_close": 30650
+      }
+    },
+    {
+      "ticker": "000880",
+      "name": "한화",
+      "score": 92,
+      "catalyst_summary": "중장기 60일 이평선(116,941원) 대비 20일선(132,475원)의 이격이 크게 벌어진 강력한 추세 상승주입니다. 고점 대비 -5.56%의 가격 조정을 거치며 거래량이 55% 수준으로 급감하여 저가 매수세 유입 시 단기 +5% 반등이 유력합니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 134100,
+        "target_price": 140800,
+        "stop_loss": 130700,
+        "strategy": "기준가 134,100원에 1차 진입 후 20일선 근접 시 추가 매수하여 평단가를 맞추고 20일선 하회 시 리스크 관리."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -1.42,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 118100
+      }
+    },
+    {
+      "ticker": "232140",
+      "name": "와이씨",
+      "score": 90,
+      "catalyst_summary": "거래량 비율이 0.47까지 완벽하게 말라붙으며 단기 바닥권을 다진 반도체 장비 주도주입니다. 20일선과의 이격이 +2.64%로 지지력이 탄탄하며, 직전 낙폭(-4.24%)을 되돌리는 5% 이상의 단기 반등 탄력이 기대됩니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 11960,
+        "target_price": 12560,
+        "stop_loss": 11660,
+        "strategy": "기준가 11,960원에서 전량 분할 매수하되, 20일 이평선(11,652원)을 이탈하는 11,660원(-2.5%) 손절선을 엄격히 준수."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 51.59,
+        "hit_date": "2026-09-21",
+        "days_to_hit": 1,
+        "final_close": 16890
+      }
+    }
+  ],
+  "performance_checked": true
+}
