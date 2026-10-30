@@ -786,7 +786,7 @@ function buildCard(r, i) {
           <div class="card-ticker">${r.ticker}</div>
         </div>
       </div>
-      <div class="score-pill" style="${r.score < 90 ? 'background:#2a1f1a;border-color:#8b4513;color:#d4845a' : ''}">AI 점수 ${r.score}점${r.score < 90 ? ' ⚠️' : ''}</div>
+      <div class="score-pill" style="${r.caution ? 'background:#2a1f1a;border-color:#8b4513;color:#d4845a' : ''}">AI 점수 ${r.score}점${r.caution ? ' ⚠️ 주의' : ''}</div>
     </div>
 
     <div class="price-grid">

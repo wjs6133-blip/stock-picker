@@ -306,8 +306,11 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
 3. 목표가(+5%)까지 전고점 저항 없는가?
 4. daily_vol_pct ≥ 1.8%인가? (변동성 충분한가)
 
-최대 3개 반환. momentum_score 60 미만이거나 차트 조건 미달이면 그 수만큼 제외.
-확신 없으면 빈 배열 [] 반환 (억지로 채우지 말 것).
+반환 규칙:
+- 최대 3개, 최소 1개 반드시 반환 (후보가 있는 한 억지로 0개 반환 금지)
+- score 80 이상: 정상 추천
+- score 80 미만: caution을 true로 설정 (주의 종목으로 표시)
+- 후보 전체가 조건 미달이어도 그 중 가장 나은 1개는 caution:true로 반환
 
 분석 데이터:
 {data_str}
@@ -318,6 +321,7 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
     "ticker": "종목코드",
     "name": "종목명",
     "score": 93,
+    "caution": false,
     "catalyst_summary": "모멘텀 핵심 근거 2~3문장 — 왜 향후 2주 뉴스가 지속되는지 구체적으로.",
     "catalyst_stars": 4,
     "catalyst_detail": {{
@@ -413,10 +417,17 @@ def main():
 
         print(f"  모멘텀 통과: {len(momentum_passed)}/{len(candidates)}개")
 
+        # 모멘텀 통과 종목이 없으면 가장 나은 1개를 fallback으로 넘김
         if not momentum_passed:
-            recs    = []
-            message = "모멘텀 기준 통과 종목 없음 (뉴스·재료 부족)"
-        else:
+            best = sorted(candidates, key=lambda x: x.get("momentum_score", 0), reverse=True)
+            if best:
+                momentum_passed = [best[0]]
+                print(f"  모멘텀 60 미달 — fallback 1개: {best[0]['ticker']} (score={best[0].get('momentum_score',0)})")
+            else:
+                recs    = []
+                message = "모멘텀 기준 통과 종목 없음 (뉴스·재료 부족)"
+
+        if momentum_passed:
             # 4) 2단계: 차트 교차검증 최종 선별
             print("2단계: 차트 교차검증 최종 선별 중...")
             ai_recs = ask_gemini(momentum_passed, market_trend)
@@ -448,6 +459,7 @@ def main():
         "ticker"          : r.get("ticker"),
         "name"            : r.get("name"),
         "score"           : r.get("score"),
+        "caution"         : r.get("caution", False),
         "catalyst_summary": r.get("catalyst_summary"),
         "catalyst_stars"  : r.get("catalyst_stars"),
         "entry_plan"      : r.get("entry_plan"),
