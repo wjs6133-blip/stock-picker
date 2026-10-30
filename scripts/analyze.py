@@ -20,6 +20,8 @@ MA20_BAND          = 0.04
 DRAWDOWN_MIN       = -0.20
 DRAWDOWN_MAX       = -0.03
 MAX_CANDIDATES     = 15
+RECENT_REC_DAYS    = 5    # 최근 N거래일 내 추천된 종목 제외
+RECENT_RET_LIMIT   = -0.03  # 최근 5거래일 수익률 하한 (-3%)
 
 
 # ── 데이터 수집 ────────────────────────────────────────────────
@@ -75,6 +77,16 @@ def analyze_chart(ticker: str) -> dict | None:
         if not (DRAWDOWN_MIN <= dd <= DRAWDOWN_MAX):
             return None
 
+        # ── 개선 필터 ① MA20 기울기: 5일 전보다 낮으면 하락 추세 ──
+        if len(ma20) < 6 or float(ma20.iloc[-1]) <= float(ma20.iloc[-6]):
+            return None
+
+        # ── 개선 필터 ② 최근 5거래일 수익률: -3% 이하면 낙폭 과다 ──
+        if len(close) >= 6:
+            ret5 = (cur - float(close.iloc[-6])) / float(close.iloc[-6])
+            if ret5 < RECENT_RET_LIMIT:
+                return None
+
         return {
             "ticker"       : ticker,
             "current_price": int(cur),
@@ -118,6 +130,42 @@ def get_chart_series(ticker: str) -> list:
 
 
 
+def get_recently_recommended(n: int = RECENT_REC_DAYS) -> set:
+    """최근 N거래일 추천 종목 집합 — 반복 추천 방지"""
+    recent = set()
+    try:
+        with open("data/history/index.json", "r", encoding="utf-8") as f:
+            idx = json.load(f)
+        for date_str in idx[:n]:
+            with open(f"data/history/{date_str}.json", "r", encoding="utf-8") as f:
+                data = json.load(f)
+            for r in data.get("recommendations", []):
+                if r.get("ticker"):
+                    recent.add(r["ticker"])
+    except Exception:
+        pass
+    return recent
+
+
+def get_market_trend() -> str:
+    """KOSPI 최근 5거래일 추세 확인 (bearish / neutral / bullish)"""
+    try:
+        end   = datetime.now()
+        start = end - timedelta(days=20)
+        df    = fdr.DataReader('KS11', start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
+        if df is None or len(df) < 6:
+            return "neutral"
+        close = df['Close'].astype(float)
+        ret5  = (float(close.iloc[-1]) - float(close.iloc[-6])) / float(close.iloc[-6])
+        if ret5 <= -0.02:
+            return "bearish"
+        if ret5 >= 0.02:
+            return "bullish"
+        return "neutral"
+    except Exception:
+        return "neutral"
+
+
 def get_news(ticker: str) -> list:
     try:
         url  = f"https://finance.naver.com/item/news_news.naver?code={ticker}&page=1"
@@ -130,15 +178,23 @@ def get_news(ticker: str) -> list:
 
 # ── Gemini 심사 ───────────────────────────────────────────────
 
-def ask_gemini(candidates: list) -> list:
+def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
     client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
 
     slim     = [{k: v for k, v in c.items() if k not in ("chart_data",)} for c in candidates]
     data_str = json.dumps(slim, ensure_ascii=False, indent=2)
 
+    market_note = {
+        "bearish": "⚠️ 현재 KOSPI 5일 하락 추세(약세장). 기준을 대폭 강화: 재료 없는 순수 차트 종목은 전부 REJECT. 확실한 연속 모멘텀 없으면 추천 종목 수를 줄이거나 0개도 가능.",
+        "bullish": "✅ 현재 KOSPI 5일 상승 추세(강세장). 상승 모멘텀 종목에 우호적 환경.",
+        "neutral": "현재 KOSPI 중립 추세.",
+    }.get(market_trend, "")
+
     prompt = f"""당신은 대한민국 최상위 헤지펀드의 '리스크 관리 총괄 심사역'입니다.
 목표: 지금 매수해서 2주(10영업일) 안에 +5%를 찍고 나올 종목을 엄선.
 [차트지표] [뉴스]를 교차 검증하세요.
+
+시장 상황: {market_note}
 
 [1단계: 재료·모멘텀 검증 60점]
 - 향후 2주간 후속 뉴스가 나올 연속 모멘텀인가? 단발성 소멸 뉴스인가?
@@ -199,16 +255,23 @@ catalyst_stars는 재료 강도 (1~5): 5=강력한 연속 모멘텀, 4=유효한
 def main():
     print(f"[{datetime.now().strftime('%H:%M:%S')}] 시작")
 
+    # ── 개선 필터 ③ 사전 준비 ────────────────────────────────
+    recently_recommended = get_recently_recommended()
+    market_trend         = get_market_trend()
+    print(f"시장 추세: {market_trend} | 최근 {RECENT_REC_DAYS}일 추천 제외 종목: {len(recently_recommended)}개")
+
     name_map = get_name_map()
     tickers  = list(name_map.keys())
     print(f"전종목 {len(tickers)}개 스캔 중...")
 
-    # 1) 눌림목 필터
+    # 1) 눌림목 필터 (개선 필터 ③ 반복 추천 차단 포함)
     candidates = []
     for i, ticker in enumerate(tickers):
         if i % 200 == 0:
             print(f"  {i}/{len(tickers)}")
             time.sleep(0.3)
+        if ticker in recently_recommended:
+            continue
         chart = analyze_chart(ticker)
         if not chart:
             continue
@@ -225,13 +288,13 @@ def main():
         c.update({"recent_news": news, "chart_data": chart_data})
         time.sleep(0.2)
 
-    # 3) Gemini 심사
+    # 3) Gemini 심사 (시장 추세 전달)
     if not candidates:
         recs    = []
         message = "오늘은 조건을 충족하는 종목이 없습니다."
     else:
         print("Gemini 심사 중...")
-        ai_recs = ask_gemini(candidates)
+        ai_recs = ask_gemini(candidates, market_trend)
         cmap    = {c["ticker"]: c for c in candidates}
         recs    = []
         for r in ai_recs:
