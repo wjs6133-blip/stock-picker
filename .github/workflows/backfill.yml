@@ -1,0 +1,46 @@
+name: Backfill Historical Recommendations
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: '시작일 (YYYYMMDD)'
+        required: true
+        default: '20261001'
+      end_date:
+        description: '종료일 (YYYYMMDD)'
+        required: true
+        default: '20261028'
+
+permissions:
+  contents: write
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run backfill
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: python scripts/backfill.py ${{ github.event.inputs.start_date }} ${{ github.event.inputs.end_date }}
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/history/
+          git diff --staged --quiet || git commit -m "chore: backfill ${{ github.event.inputs.start_date }}-${{ github.event.inputs.end_date }}" && git push
