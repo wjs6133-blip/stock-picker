@@ -13,6 +13,14 @@
         "target_price": 6160,
         "stop_loss": 5720,
         "strategy": "현재가 부근에서 비중의 60%를 진입하고 20일선(5760원) 근접 시 나머지 40%를 분할 매수합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 6.64,
+        "hit_date": "2026-09-17",
+        "days_to_hit": 1,
+        "final_close": 5320
       }
     },
     {
@@ -26,6 +34,14 @@
         "target_price": 6550,
         "stop_loss": 6080,
         "strategy": "6240원 시초가 이하에서 1회 전량 진입하며 20일선 이탈(6080원) 시 엄격히 손절 대응합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 0.32,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 6030
       }
     },
     {
@@ -39,7 +55,16 @@
         "target_price": 294500,
         "stop_loss": 273500,
         "strategy": "280000원 지지 확인 후 시초 분할 매수하며, 20일선 종가 이탈 시 미련 없이 손절합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 4.28,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 271000
       }
     }
-  ]
+  ],
+  "performance_checked": true
 }

@@ -13,6 +13,14 @@
         "target_price": 317000,
         "stop_loss": 294000,
         "strategy": "기준가 301,500원 부근에서 진입하고 20일선(292,000원) 이탈 전인 294,000원을 명확한 손절선으로 잡고 대응합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 7.46,
+        "hit_date": "2026-10-06",
+        "days_to_hit": 6,
+        "final_close": 250500
       }
     },
     {
@@ -26,6 +34,14 @@
         "target_price": 35600,
         "stop_loss": 33000,
         "strategy": "33,850원 부근에서 매수 후 20일선 근접 지점인 33,000원 이탈 시 기계적으로 손절하는 전략을 실행합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 19.5,
+        "hit_date": "2026-10-01",
+        "days_to_hit": 4,
+        "final_close": 36550
       }
     },
     {
@@ -39,7 +55,16 @@
         "target_price": 37300,
         "stop_loss": 34600,
         "strategy": "35,500원 현재가에서 매수 진입하며 20일선(34,907원) 하회를 방어선으로 삼아 34,600원 손절선으로 리스크를 통제합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 3.38,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 31800
       }
     }
-  ]
+  ],
+  "performance_checked": true
 }
