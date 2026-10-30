@@ -2,6 +2,11 @@
 과거 날짜 범위 기준 눌림목 분석 백필
 - 각 날짜 기준으로 해당 날짜까지의 데이터만 사용 (미래 데이터 미참조)
 - 전 종목 데이터를 1회만 로드 후 날짜별 슬라이싱 (효율화)
+- analyze.py와 동일한 개선 필터 적용
+  ① MA20 기울기 (5일 전보다 낮으면 하락 추세 제외)
+  ② 최근 5거래일 수익률 -3% 이하 제외
+  ③ 직전 5거래일 추천 종목 반복 차단
+  ④ 시장 추세(KOSPI) → Gemini 프롬프트에 반영
 
 사용: python scripts/backfill.py [start_date] [end_date]
 예:   python scripts/backfill.py 20261001 20261028
@@ -10,6 +15,7 @@ import sys
 import json
 import os
 import time
+from collections import deque
 from datetime import datetime, timedelta
 
 import FinanceDataReader as fdr
@@ -21,6 +27,8 @@ MA20_BAND          = 0.04
 DRAWDOWN_MIN       = -0.20
 DRAWDOWN_MAX       = -0.03
 MAX_CANDIDATES     = 15
+RECENT_REC_DAYS    = 5
+RECENT_RET_LIMIT   = -0.03
 
 
 # ── 유틸 ──────────────────────────────────────────────────────
@@ -39,7 +47,25 @@ def get_name_map() -> dict:
     return dict(zip(df[code_col].astype(str), df[name_col].astype(str)))
 
 
-# ── 차트 분석 (슬라이싱된 df 직접 입력) ───────────────────────
+# ── 시장 추세 (기준일 기준 KOSPI 슬라이싱) ────────────────────
+
+def get_market_trend_asof(kospi_df: pd.DataFrame, as_of: pd.Timestamp) -> str:
+    try:
+        df = kospi_df[kospi_df.index <= as_of]
+        if df is None or len(df) < 6:
+            return "neutral"
+        close = df['Close'].astype(float)
+        ret5  = (float(close.iloc[-1]) - float(close.iloc[-6])) / float(close.iloc[-6])
+        if ret5 <= -0.02:
+            return "bearish"
+        if ret5 >= 0.02:
+            return "bullish"
+        return "neutral"
+    except Exception:
+        return "neutral"
+
+
+# ── 차트 분석 (개선 필터 포함) ────────────────────────────────
 
 def analyze_chart_from_df(ticker: str, df: pd.DataFrame) -> dict | None:
     try:
@@ -72,6 +98,16 @@ def analyze_chart_from_df(ticker: str, df: pd.DataFrame) -> dict | None:
         if not (DRAWDOWN_MIN <= dd <= DRAWDOWN_MAX):
             return None
 
+        # ── 개선 필터 ① MA20 기울기 ──────────────────────────
+        if len(ma20) < 6 or float(ma20.iloc[-1]) <= float(ma20.iloc[-6]):
+            return None
+
+        # ── 개선 필터 ② 최근 5거래일 수익률 ─────────────────
+        if len(close) >= 6:
+            ret5 = (cur - float(close.iloc[-6])) / float(close.iloc[-6])
+            if ret5 < RECENT_RET_LIMIT:
+                return None
+
         return {
             "ticker"       : ticker,
             "current_price": int(cur),
@@ -87,19 +123,27 @@ def analyze_chart_from_df(ticker: str, df: pd.DataFrame) -> dict | None:
 
 # ── Gemini 심사 ───────────────────────────────────────────────
 
-def ask_gemini(candidates: list, date_str: str) -> list:
+def ask_gemini(candidates: list, date_str: str, market_trend: str = "neutral") -> list:
     client   = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
     slim     = [{k: v for k, v in c.items()} for c in candidates]
     data_str = json.dumps(slim, ensure_ascii=False, indent=2)
+
+    market_note = {
+        "bearish": "⚠️ 기준일 기준 KOSPI 5일 하락 추세(약세장). 기준을 대폭 강화: 재료 없는 순수 차트 종목은 전부 REJECT. 확실한 반등 근거 없으면 추천 수를 줄이거나 0개도 가능.",
+        "bullish": "✅ 기준일 기준 KOSPI 5일 상승 추세(강세장). 상승 모멘텀 종목에 우호적 환경.",
+        "neutral": "기준일 기준 KOSPI 중립 추세.",
+    }.get(market_trend, "")
 
     prompt = f"""당신은 대한민국 최상위 헤지펀드의 '리스크 관리 총괄 심사역'입니다.
 분석 기준일: {date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}
 목표: 기준일 기준으로 매수해서 2주(10영업일) 안에 +5%를 찍고 나올 종목을 엄선.
 기준일 기준 뉴스는 없으므로 차트 기술적 분석에 집중하세요.
 
+시장 상황: {market_note}
+
 [1단계: 차트 기술적 분석 60점]
-- 정배열(MA20 > MA60) 확인
-- 20일선 지지가 확인되는가?
+- MA20 기울기가 우상향인가? (이미 필터 통과 종목이지만 강도 확인)
+- 20일선 지지가 단단한가?
 - 거래량 수축 눌림목인가?
 
 [2단계: 손익비 검증 40점]
@@ -237,8 +281,7 @@ def main():
     tickers  = list(name_map.keys())
     print(f"전체 {len(tickers)}개 종목")
 
-    # ── 전 종목 OHLCV 한 번만 로드 (핵심 최적화) ──────────────
-    # 백필 시작일 130거래일 전부터 end_date까지 가져옴
+    # ── 전 종목 OHLCV 한 번만 로드 ────────────────────────────
     fetch_start = (start_dt - timedelta(days=200)).strftime('%Y-%m-%d')
     fetch_end   = end_dt.strftime('%Y-%m-%d')
 
@@ -254,21 +297,38 @@ def main():
         except Exception:
             pass
 
+    # KOSPI 데이터 로드 (시장 추세용)
+    print("KOSPI 데이터 로딩 중...")
+    kospi_df = fdr.DataReader('KS11', fetch_start, fetch_end)
+
     print(f"유효 종목 {len(all_data)}개 로드 완료\n")
 
     today = datetime.now()
 
+    # ── 개선 필터 ③ 날짜별 추천 종목 롤링 윈도우 ─────────────
+    # deque로 최근 RECENT_REC_DAYS 거래일의 추천 종목 관리
+    recent_recs_window: deque = deque(maxlen=RECENT_REC_DAYS)
+
     # ── 날짜별 분석 ───────────────────────────────────────────
     for date_str in to_run:
-        as_of = datetime.strptime(date_str, "%Y%m%d")
-        as_of_end = pd.Timestamp(as_of)
+        as_of     = datetime.strptime(date_str, "%Y%m%d")
+        as_of_ts  = pd.Timestamp(as_of)
+
+        # 현재 제외 종목 집합
+        recently_recommended = {t for day_set in recent_recs_window for t in day_set}
+
+        # 시장 추세
+        market_trend = get_market_trend_asof(kospi_df, as_of_ts)
 
         print(f"{'='*50}")
-        print(f"{date_str} 분석 중...")
+        print(f"{date_str} 분석 | 시장: {market_trend} | 반복 제외: {len(recently_recommended)}개")
 
         candidates = []
         for ticker, full_df in all_data.items():
-            df = full_df[full_df.index <= as_of_end]
+            # ── 개선 필터 ③ 반복 추천 차단 ──────────────────
+            if ticker in recently_recommended:
+                continue
+            df = full_df[full_df.index <= as_of_ts]
             if len(df) < 62:
                 continue
             chart = analyze_chart_from_df(ticker, df)
@@ -285,9 +345,13 @@ def main():
             message = "조건을 충족하는 종목이 없습니다."
         else:
             print("Gemini 심사 중...")
-            ai_recs = ask_gemini(candidates, date_str)
+            ai_recs = ask_gemini(candidates, date_str, market_trend)
             recs    = ai_recs
             message = f"후보 {len(candidates)}개 중 {len(recs)}개 통과"
+
+        # 오늘 추천 종목을 롤링 윈도우에 추가
+        today_tickers = {r.get("ticker") for r in recs if r.get("ticker")}
+        recent_recs_window.append(today_tickers)
 
         # 히스토리 저장 (경량 — 차트 데이터 제외)
         history_recs = [{
