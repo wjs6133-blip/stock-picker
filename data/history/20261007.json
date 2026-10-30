@@ -1,0 +1,70 @@
+{
+  "date": "20261007",
+  "updated_at": "2026-10-07 00:00",
+  "recommendations": [
+    {
+      "ticker": "001060",
+      "name": "JW중외제약",
+      "score": 93,
+      "catalyst_summary": "MA20(27,035원)과 MA60(26,060원)이 완벽한 정배열을 형성하며 20일선 위에서 견조한 지지 반등을 보이고 있습니다. 거래량이 0.52배로 수축되어 매도 압력이 현저히 줄어든 양호한 눌림목입니다. 고점 대비 -5.34% 하락한 상태로 직전 고점 부근까지 +5% 기술적 반등 공간이 충분합니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 27450,
+        "target_price": 28850,
+        "stop_loss": 26750,
+        "strategy": "기준일 시초가에 전량 매수하되 20일선 하단인 26,750원 이탈 시 즉시 손절 처리합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -4.37,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 24350
+      }
+    },
+    {
+      "ticker": "050120",
+      "name": "ES큐브",
+      "score": 90,
+      "catalyst_summary": "MA20과 MA60의 정배열 상태에서 20일선 바로 위(+0.86%)에 밀착하여 하방 경직성을 확보했습니다. 거래량 비율이 0.27배로 극단적인 매도세 소진을 나타내며 강력한 기술적 반등 임박 신호를 보여줍니다. 고점 대비 -5.58% 눌림목 구간으로 손절선이 짧고 명확해 최상의 손익비를 제공합니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 3300,
+        "target_price": 3465,
+        "stop_loss": 3215,
+        "strategy": "3,300원 이하 호가에 분할 매수 체결 후 20일선 이탈 구간인 3,215원을 확정 손절선으로 운용합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 12.12,
+        "hit_date": "2026-10-21",
+        "days_to_hit": 9,
+        "final_close": 3650
+      }
+    },
+    {
+      "ticker": "024840",
+      "name": "KBI메탈",
+      "score": 89,
+      "catalyst_summary": "MA20(5,911원)과 MA60(5,237원) 사이 이격이 크게 벌어진 강한 정배열 상승 추세 종목입니다. 20일선 위(+2.34%)에서 거래량 비율 0.51배로 숨고르기 눌림목을 형성하며 매물을 원활히 소화 중입니다. 직전 고점(-6.20%) 대비 이격이 좁아 단기 전고점 트라이 과정에서 +5% 도달 확률이 높습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 6050,
+        "target_price": 6360,
+        "stop_loss": 5890,
+        "strategy": "6,050원 기준선에서 진입하며 20일선(5,911원) 하회 수준인 5,890원을 칼손절선으로 설정합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -2.81,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 4440
+      }
+    }
+  ],
+  "performance_checked": true
+}

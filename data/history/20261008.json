@@ -1,0 +1,70 @@
+{
+  "date": "20261008",
+  "updated_at": "2026-10-08 00:00",
+  "recommendations": [
+    {
+      "ticker": "289080",
+      "name": "SV인베스트먼트",
+      "score": 94,
+      "catalyst_summary": "20일선(2,665원)과 60일선(2,244원)의 중기 정배열 추세가 강력하게 유지되고 있는 가운데, 20일선 바로 위 +0.72% 구간에서 완벽한 지지 캔들을 형성했습니다. 거래량이 직전 대비 29% 수준으로 급감하며 전형적인 매도 공백형 눌림목을 완성하여 단기 기술적 반등 가능성이 매우 높습니다.",
+      "catalyst_stars": 5,
+      "entry_plan": {
+        "buy_price": 2685,
+        "target_price": 2820,
+        "stop_loss": 2615,
+        "strategy": "기준가 2,685원 이하에서 20일선 지지를 확인하며 시초가 분할 매수 후 20일선 이탈(-2.6%) 시 기계적 손절 대응"
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -3.72,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 2510
+      }
+    },
+    {
+      "ticker": "037370",
+      "name": "EG",
+      "score": 92,
+      "catalyst_summary": "60일선(3,588원) 대비 20일선(4,174원)이 크게 상회하는 강력한 정배열 상승 추세 국면에 위치해 있습니다. 고점 대비 -7.27% 조정받은 후 20일선 이격도 +0.84% 수준에서 거래량이 43%로 급감하며 눌림목 지지력을 확보했습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 4210,
+        "target_price": 4425,
+        "stop_loss": 4100,
+        "strategy": "20일선 하방 이탈을 리스크 라인으로 설정하고 4,200원 전후에서 1차 진입하는 정밀 손익비 전략"
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": -3.92,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 3735
+      }
+    },
+    {
+      "ticker": "084870",
+      "name": "TBH글로벌",
+      "score": 89,
+      "catalyst_summary": "20일선(2,219원)과 60일선(2,144원)이 정배열을 유지하는 가운데 20일선 상단 +1.61% 위치에서 견고한 지지를 형성했습니다. 특히 거래량이 평소 대비 14% 수준까지 극도로 수축되며 매도세가 완전히 마른 최적의 눌림목을 제시하고 있습니다.",
+      "catalyst_stars": 4,
+      "entry_plan": {
+        "buy_price": 2255,
+        "target_price": 2370,
+        "stop_loss": 2195,
+        "strategy": "20일선 근접 시 2,240~2,255원 밴드 내 매수 집행 및 20일선 종가 이탈(-2.6%) 즉시 손절 실행"
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.55,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 2175
+      }
+    }
+  ],
+  "performance_checked": true
+}
