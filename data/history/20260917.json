@@ -13,14 +13,6 @@
         "target_price": 43000,
         "stop_loss": 39900,
         "strategy": "기준가 부근에서 즉시 1차 진입하고 20일선 부근 지지 확인 시 분할 대응합니다."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": true,
-        "max_return_pct": 5.01,
-        "hit_date": "2026-09-22",
-        "days_to_hit": 3,
-        "final_close": 40150
       }
     },
     {
@@ -34,14 +26,6 @@
         "target_price": 28600,
         "stop_loss": 26500,
         "strategy": "현재가에서 20일선 지지를 확인하며 비중을 구축하고 26,500원 이탈 시 기계적으로 손절합니다."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": false,
-        "max_return_pct": -1.47,
-        "hit_date": null,
-        "days_to_hit": null,
-        "final_close": 25900
       }
     },
     {
@@ -55,16 +39,7 @@
         "target_price": 2470,
         "stop_loss": 2290,
         "strategy": "기준가 체결을 우선으로 하되 20일선(2,297원)을 하회하지 않는 선에서 단기 기술적 반등을 노립니다."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": false,
-        "max_return_pct": -0.85,
-        "hit_date": null,
-        "days_to_hit": null,
-        "final_close": 2220
       }
     }
-  ],
-  "performance_checked": true
+  ]
 }

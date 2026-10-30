@@ -13,14 +13,6 @@
         "target_price": 19350,
         "stop_loss": 17930,
         "strategy": "기준일 종가 부근에서 비중의 60%를 1차 진입하고 20일선 지지 확인 시 나머지를 채우는 분할 매수 전략."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": false,
-        "max_return_pct": -0.54,
-        "hit_date": null,
-        "days_to_hit": null,
-        "final_close": 17800
       }
     },
     {
@@ -34,14 +26,6 @@
         "target_price": 27750,
         "stop_loss": 25740,
         "strategy": "시초가 일시적 눌림을 활용해 26,200~26,400원 밴드에서 분할 매수하고 MA20 이탈 시 기계적 손절 대응."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": true,
-        "max_return_pct": 32.77,
-        "hit_date": "2026-09-21",
-        "days_to_hit": 4,
-        "final_close": 35050
       }
     },
     {
@@ -55,16 +39,7 @@
         "target_price": 17250,
         "stop_loss": 16000,
         "strategy": "20일선 지지력을 믿고 16,350~16,450원 구간에서 즉시 진입하는 단기 스윙 전략."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": false,
-        "max_return_pct": -0.73,
-        "hit_date": null,
-        "days_to_hit": null,
-        "final_close": 16140
       }
     }
-  ],
-  "performance_checked": true
+  ]
 }

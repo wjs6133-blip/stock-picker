@@ -13,14 +13,6 @@
         "target_price": 27200,
         "stop_loss": 25250,
         "strategy": "기준가 25,900원 부근에서 20일선 돌파를 확인하며 분할 매수하고 -2.5% 수준인 25,250원 이탈 시 기계적으로 손절합니다."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": true,
-        "max_return_pct": 5.21,
-        "hit_date": "2026-09-14",
-        "days_to_hit": 7,
-        "final_close": 26350
       }
     },
     {
@@ -34,14 +26,6 @@
         "target_price": 4680,
         "stop_loss": 4340,
         "strategy": "4,455원 수준에서 20일선 지지를 확인하며 비중을 싣고 4,340원 이탈 시 리스크 관리를 위해 즉시 손절합니다."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": false,
-        "max_return_pct": 1.46,
-        "hit_date": null,
-        "days_to_hit": null,
-        "final_close": 4420
       }
     },
     {
@@ -55,16 +39,7 @@
         "target_price": 30400,
         "stop_loss": 28200,
         "strategy": "28,950원 전후에서 분할 매수 진입 후 60일선 하단인 28,200원 종가 이탈 시 손절 대응합니다."
-      },
-      "performance": {
-        "checked": true,
-        "hit_target": true,
-        "max_return_pct": 7.43,
-        "hit_date": "2026-09-09",
-        "days_to_hit": 4,
-        "final_close": 30150
       }
     }
-  ],
-  "performance_checked": true
+  ]
 }

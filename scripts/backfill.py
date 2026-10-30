@@ -29,6 +29,7 @@ DRAWDOWN_MAX       = -0.03
 MAX_CANDIDATES     = 15
 RECENT_REC_DAYS    = 5
 RECENT_RET_LIMIT   = -0.03
+MIN_DAILY_VOL      = 0.015  # 일변동성 1.5% 미만 방어주 제외
 
 
 # ── 유틸 ──────────────────────────────────────────────────────
@@ -108,8 +109,14 @@ def analyze_chart_from_df(ticker: str, df: pd.DataFrame) -> dict | None:
             if ret5 < RECENT_RET_LIMIT:
                 return None
 
+        # ── 개선 필터 ③ 일변동성: 1.5% 미만 방어주 제외 ─────
+        daily_vol = float(close.pct_change().dropna().iloc[-20:].std())
+        if daily_vol < MIN_DAILY_VOL:
+            return None
+
         return {
             "ticker"       : ticker,
+            "daily_vol_pct": round(daily_vol * 100, 2),
             "current_price": int(cur),
             "ma20"         : int(cur_ma20),
             "ma60"         : int(cur_ma60),
@@ -136,22 +143,27 @@ def ask_gemini(candidates: list, date_str: str, market_trend: str = "neutral") -
 
     prompt = f"""당신은 대한민국 최상위 헤지펀드의 '리스크 관리 총괄 심사역'입니다.
 분석 기준일: {date_str[:4]}-{date_str[4:6]}-{date_str[6:8]}
-목표: 기준일 기준으로 매수해서 2주(10영업일) 안에 +5%를 찍고 나올 종목을 엄선.
-기준일 기준 뉴스는 없으므로 차트 기술적 분석에 집중하세요.
+목표: 기준일 기준으로 매수해서 2주(10영업일) 안에 장중 +5%를 한 번이라도 달성할 종목 엄선.
+기준일 기준 뉴스 없음 — 차트 기술적 분석 + daily_vol_pct(일변동성) 중심으로 판단.
 
 시장 상황: {market_note}
 
+━━━ 즉시 REJECT 조건 ━━━
+✗ daily_vol_pct < 1.8% → 10거래일 내 +5% 달성 불가능한 방어주
+✗ 식품·음료·보험·시멘트·철강원료·물류·유통 섹터 → 단기 모멘텀 없는 업종
+✗ 차트상 전고점 이후 계속 우하향 흔적 → 구조적 하락 배제
+
 [1단계: 차트 기술적 분석 60점]
-- MA20 기울기가 우상향인가? (이미 필터 통과 종목이지만 강도 확인)
-- 20일선 지지가 단단한가?
-- 거래량 수축 눌림목인가?
+- daily_vol_pct 높을수록 가점 (2% 이상 = 충분한 변동성)
+- MA20 기울기 우상향, 20일선 지지 단단한가?
+- 거래량 수축 → 반등 에너지 축적 확인
 
 [2단계: 손익비 검증 40점]
-- 목표가(+5%)까지 저항이 비어 있는가?
+- 목표가(+5%)까지 전고점 저항이 없는가?
 - 손절선(-2.5%)이 명확한가?
 
-catalyst_stars는 차트 강도 (1~5): 5=완벽한 눌림목, 4=양호, 3=보통, 2=약한, 1=불량.
-점수 높은 순으로 반드시 3개 반환. 3개 미만 후보면 있는 만큼만.
+catalyst_stars는 차트 강도 (1~5): 5=완벽한 눌림목+고변동성, 4=양호, 3=보통, 2=약한, 1=불량.
+점수 높은 순으로 최대 3개 반환. 85점 미만이면 포함 금지. 85점 이상 없으면 빈 배열 [] 반환.
 
 분석 데이터:
 {data_str}
@@ -218,16 +230,19 @@ def run_performance_check(date_str: str, data: dict) -> dict:
 
             df10       = df.head(10)
             closes     = df10["Close"].astype(float).tolist()
-            hit_target = any(c >= target_price for c in closes)
-            max_close  = max(closes) if closes else buy_price
-            max_ret    = round((max_close - buy_price) / buy_price * 100, 2)
+            highs      = df10["High"].astype(float).tolist()
+
+            # 고가 기준: 장중 한 번이라도 목표가 터치 시 달성
+            hit_target = any(h >= target_price for h in highs)
+            max_high   = max(highs) if highs else buy_price
+            max_ret    = round((max_high - buy_price) / buy_price * 100, 2)
             final      = int(closes[-1]) if closes else None
 
             hit_date    = None
             days_to_hit = None
             if hit_target:
                 for i, (ts, row) in enumerate(df10.iterrows()):
-                    if float(row["Close"]) >= target_price:
+                    if float(row["High"]) >= target_price:
                         hit_date    = ts.strftime("%Y-%m-%d")
                         days_to_hit = i + 1
                         break
