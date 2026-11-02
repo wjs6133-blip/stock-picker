@@ -1,0 +1,20 @@
+{
+  "date": "20261102",
+  "updated_at": "2026-11-02 01:58",
+  "recommendations": [
+    {
+      "ticker": "060310",
+      "name": "3S",
+      "score": 62,
+      "caution": true,
+      "catalyst_summary": "최근 뚜렷한 단기 뉴스 촉매가 부재하여 모멘텀 지속성이 약한 상태입니다. 다만 반도체 웨이퍼 이송용기(FOUP) 사업 기반으로 전방 반도체 업황 개선 시 수급 유입 가능성이 상존합니다.",
+      "catalyst_stars": 2,
+      "entry_plan": {
+        "buy_price": 1265,
+        "target_price": 1335,
+        "stop_loss": 1220,
+        "strategy": "MA20 지지선(1,262원) 부근에서 분할 매수 후 장중 거래량 급증 시 +5% 이상 구간에서 차익 실현"
+      }
+    }
+  ]
+}
