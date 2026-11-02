@@ -615,6 +615,14 @@ function renderTVChart(cardIdx) {
     enable_publishing  : false,
     save_image         : false,
     container_id  : divId,
+    overrides: {
+      "mainSeriesProperties.candleStyle.upColor"        : "#ef5350",
+      "mainSeriesProperties.candleStyle.downColor"      : "#1976d2",
+      "mainSeriesProperties.candleStyle.borderUpColor"  : "#ef5350",
+      "mainSeriesProperties.candleStyle.borderDownColor": "#1976d2",
+      "mainSeriesProperties.candleStyle.wickUpColor"    : "#ef5350",
+      "mainSeriesProperties.candleStyle.wickDownColor"  : "#1976d2",
+    },
   });
 }
 
@@ -925,6 +933,14 @@ function openStockChart(ticker, name) {
     enable_publishing  : false,
     save_image         : false,
     container_id      : "tv-modal",
+    overrides: {
+      "mainSeriesProperties.candleStyle.upColor"        : "#ef5350",
+      "mainSeriesProperties.candleStyle.downColor"      : "#1976d2",
+      "mainSeriesProperties.candleStyle.borderUpColor"  : "#ef5350",
+      "mainSeriesProperties.candleStyle.borderDownColor": "#1976d2",
+      "mainSeriesProperties.candleStyle.wickUpColor"    : "#ef5350",
+      "mainSeriesProperties.candleStyle.wickDownColor"  : "#1976d2",
+    },
   });
 }
 
