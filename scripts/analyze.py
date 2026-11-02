@@ -20,9 +20,11 @@ MA20_BAND          = 0.04
 DRAWDOWN_MIN       = -0.20
 DRAWDOWN_MAX       = -0.03
 MAX_CANDIDATES     = 15
+MAX_RS_CANDIDATES  = 8     # 약세장 상대강도 리더 최대 수집 수
 RECENT_REC_DAYS    = 5    # 최근 N거래일 내 추천된 종목 제외
 RECENT_RET_LIMIT   = -0.03  # 최근 5거래일 수익률 하한 (-3%)
 MIN_DAILY_VOL      = 0.015  # 일변동성 하한 (1.5% 미만이면 +5% 달성 불가능한 방어주)
+RS_MIN_OUTPERFORM  = 0.02   # 지수 대비 최소 아웃퍼폼 기준 (+2%p)
 
 
 # ── 데이터 수집 ────────────────────────────────────────────────
@@ -154,23 +156,93 @@ def get_recently_recommended(n: int = RECENT_REC_DAYS) -> set:
     return recent
 
 
-def get_market_trend() -> str:
-    """KOSPI 최근 5거래일 추세 확인 (bearish / neutral / bullish)"""
+def get_market_data() -> tuple[str, float]:
+    """KOSPI 최근 5거래일 추세 + 실제 수익률 반환 (bearish/neutral/bullish, ret5)"""
     try:
         end   = datetime.now()
         start = end - timedelta(days=20)
         df    = fdr.DataReader('KS11', start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
         if df is None or len(df) < 6:
-            return "neutral"
+            return "neutral", 0.0
         close = df['Close'].astype(float)
         ret5  = (float(close.iloc[-1]) - float(close.iloc[-6])) / float(close.iloc[-6])
         if ret5 <= -0.02:
-            return "bearish"
+            return "bearish", ret5
         if ret5 >= 0.02:
-            return "bullish"
-        return "neutral"
+            return "bullish", ret5
+        return "neutral", ret5
     except Exception:
-        return "neutral"
+        return "neutral", 0.0
+
+
+def analyze_chart_rs(ticker: str, kospi_ret5: float) -> dict | None:
+    """약세장 전용 — 지수 하락에도 버티거나 오르는 상대강도 리더 필터"""
+    df = fetch_ohlcv(ticker)
+    if df is None:
+        return None
+    try:
+        close  = df['Close'].astype(float)
+        volume = df['Volume'].astype(float)
+        ma20   = close.rolling(20).mean()
+        ma60   = close.rolling(60).mean()
+
+        if len(close) < 6:
+            return None
+
+        cur      = float(close.iloc[-1])
+        cur_ma20 = float(ma20.iloc[-1])
+        cur_ma60 = float(ma60.iloc[-1])
+
+        if any(pd.isna(v) for v in [cur, cur_ma20, cur_ma60]) or cur == 0:
+            return None
+
+        # 기본 추세: MA20 > MA60
+        if cur_ma20 < cur_ma60:
+            return None
+
+        # 5일 수익률 계산
+        ret5 = (cur - float(close.iloc[-6])) / float(close.iloc[-6])
+
+        # 상대강도 = 종목 수익률 - 지수 수익률 (지수보다 RS_MIN_OUTPERFORM 이상 아웃퍼폼)
+        rs = ret5 - kospi_ret5
+        if rs < RS_MIN_OUTPERFORM:
+            return None
+
+        # 종목 자체가 -5% 이상 하락이면 제외 (버텨야 RS 리더)
+        if ret5 < -0.05:
+            return None
+
+        # MA20 기울기 우상향
+        if len(ma20) < 6 or float(ma20.iloc[-1]) <= float(ma20.iloc[-6]):
+            return None
+
+        # 일변동성 하한
+        daily_vol = float(close.pct_change().dropna().iloc[-20:].std())
+        if daily_vol < MIN_DAILY_VOL:
+            return None
+
+        rv        = float(volume.iloc[-5:].mean())
+        bv        = float(volume.iloc[-25:-5].mean())
+        vol_ratio = rv / bv if bv > 0 else 1.0
+        gap       = (cur - cur_ma20) / cur_ma20
+        high30    = float(close.iloc[-30:].max())
+        dd        = (cur - high30) / high30
+
+        return {
+            "ticker"          : ticker,
+            "daily_vol_pct"   : round(daily_vol * 100, 2),
+            "current_price"   : int(cur),
+            "ma20"            : int(cur_ma20),
+            "ma60"            : int(cur_ma60),
+            "ma20_gap_pct"    : round(gap * 100, 2),
+            "vol_ratio"       : round(vol_ratio, 2),
+            "drawdown_pct"    : round(dd * 100, 2),
+            "ret5_pct"        : round(ret5 * 100, 2),
+            "rs_vs_kospi_pct" : round(rs * 100, 2),
+            "is_rs_leader"    : True,
+        }
+    except Exception:
+        return None
 
 
 def get_news_with_dates(ticker: str, days: int = 14) -> list:
@@ -226,7 +298,11 @@ def score_momentum(candidates: list, market_trend: str) -> list:
     data_str = json.dumps(slim, ensure_ascii=False, indent=2)
 
     market_note = {
-        "bearish": "⚠️ 현재 KOSPI 약세장 — 재료 없이 순수 차트만인 종목은 momentum_score 30 이하로 낮게 평가.",
+        "bearish": (
+            "⚠️ 현재 KOSPI 약세장 — 재료 없이 순수 차트만인 종목은 momentum_score 30 이하로 낮게 평가. "
+            "단, is_rs_leader:true 종목(지수 하락에도 상승/방어 중인 상대강도 리더)은 강한 재료·모멘텀이 있을 가능성이 높으므로 "
+            "뉴스를 확인해 재료가 있으면 70~90으로 우선 평가할 것."
+        ),
         "bullish": "✅ 현재 KOSPI 강세장 — 테마 모멘텀 종목에 우호적.",
         "neutral": "현재 KOSPI 중립.",
     }.get(market_trend, "")
@@ -288,7 +364,11 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
     data_str = json.dumps(slim, ensure_ascii=False, indent=2)
 
     market_note = {
-        "bearish": "⚠️ KOSPI 약세장. 확신 없으면 추천 0개도 가능.",
+        "bearish": (
+            "⚠️ KOSPI 약세장. is_rs_leader:true 종목(지수 하락 중에도 상승/방어한 상대강도 리더)을 최우선 검토. "
+            "rs_vs_kospi_pct가 높을수록 숨은 재료·수급이 강하다는 신호. "
+            "일반 눌림목 종목은 확신 없으면 caution:true로 반환."
+        ),
         "bullish": "✅ KOSPI 강세장. 모멘텀 종목 우호적.",
         "neutral": "KOSPI 중립.",
     }.get(market_trend, "")
@@ -305,6 +385,7 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
 2. 차트: MA20 기울기 우상향, 거래량 수축 후 반등 에너지 축적 확인
 3. 목표가(+5%)까지 전고점 저항 없는가?
 4. daily_vol_pct ≥ 1.8%인가? (변동성 충분한가)
+5. (약세장 한정) is_rs_leader:true이고 rs_vs_kospi_pct ≥ 2.0인가? → 지수 역행 상승이므로 강한 재료 근거 있음. 우선순위 최상.
 
 반환 규칙:
 - 최대 3개, 최소 1개 반드시 반환 (후보가 있는 한 억지로 0개 반환 금지)
@@ -359,16 +440,16 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
 def main():
     print(f"[{datetime.now().strftime('%H:%M:%S')}] 시작")
 
-    # ── 개선 필터 ③ 사전 준비 ────────────────────────────────
-    recently_recommended = get_recently_recommended()
-    market_trend         = get_market_trend()
-    print(f"시장 추세: {market_trend} | 최근 {RECENT_REC_DAYS}일 추천 제외 종목: {len(recently_recommended)}개")
+    # ── 사전 준비 ─────────────────────────────────────────────
+    recently_recommended  = get_recently_recommended()
+    market_trend, kospi_ret5 = get_market_data()
+    print(f"시장 추세: {market_trend} ({kospi_ret5:+.1%}) | 최근 {RECENT_REC_DAYS}일 추천 제외 종목: {len(recently_recommended)}개")
 
     name_map = get_name_map()
     tickers  = list(name_map.keys())
     print(f"전종목 {len(tickers)}개 스캔 중...")
 
-    # 1) 눌림목 필터 (개선 필터 ③ 반복 추천 차단 포함)
+    # 1) 눌림목 후보 수집
     candidates = []
     for i, ticker in enumerate(tickers):
         if i % 200 == 0:
@@ -382,6 +463,25 @@ def main():
         candidates.append({**chart, "name": name_map.get(ticker, ticker)})
         if len(candidates) >= MAX_CANDIDATES:
             break
+
+    # 2) 약세장: 상대강도 리더 추가 수집 (지수 하락에도 버티거나 오르는 종목)
+    if market_trend == "bearish":
+        print(f"약세장 감지 — 상대강도 리더 추가 스캔 중... (KOSPI 5일 수익률: {kospi_ret5:+.1%})")
+        rs_tickers = {c["ticker"] for c in candidates} | recently_recommended
+        rs_candidates = []
+        for ticker in tickers:
+            if ticker in rs_tickers:
+                continue
+            chart = analyze_chart_rs(ticker, kospi_ret5)
+            if not chart:
+                continue
+            rs_candidates.append({**chart, "name": name_map.get(ticker, ticker)})
+            if len(rs_candidates) >= MAX_RS_CANDIDATES:
+                break
+        print(f"  RS 리더 {len(rs_candidates)}개 발견")
+        # RS 리더를 앞에 배치 (우선 검토)
+        candidates = rs_candidates + candidates
+        candidates = candidates[:MAX_CANDIDATES]
 
     print(f"후보 {len(candidates)}개 → 뉴스·차트 수집 중")
 
