@@ -577,7 +577,7 @@ function switchTab(cardIdx, tab) {
   card.querySelectorAll(".tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
 
   if (tab === "chart") {
-    renderTVChart(cardIdx);
+    requestAnimationFrame(() => requestAnimationFrame(() => renderTVChart(cardIdx)));
   }
 }
 
@@ -808,8 +808,8 @@ async function loadRecs() {
       <div class="section-title">오늘의 AI 추천 종목 — ${data.date || ""}</div>
       <div class="cards">${html}</div>`;
 
-    // 첫 번째 카드 차트 자동 렌더
-    requestAnimationFrame(() => requestAnimationFrame(() => renderTVChart(0)));
+    // 모든 카드 차트 자동 렌더
+    recs.forEach((_, i) => requestAnimationFrame(() => requestAnimationFrame(() => renderTVChart(i))));
 
   } catch(e) {
     result.innerHTML = `
