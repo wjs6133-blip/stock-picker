@@ -1,20 +1,5 @@
 {
   "date": "20261103",
-  "updated_at": "2026-11-03 01:40",
-  "recommendations": [
-    {
-      "ticker": "050120",
-      "name": "ES큐브",
-      "score": 62,
-      "caution": true,
-      "catalyst_summary": "현재 뚜렷한 시장 주도 테마나 뉴스 모멘텀이 부재하여 재료 기반의 상승 지속성은 낮습니다. 다만 KOSPI 강세장 환경에서 일간 변동성(3.27%)이 살아있어 수급 순환매에 따른 기술적 반등 가능성은 열려 있습니다.",
-      "catalyst_stars": 1,
-      "entry_plan": {
-        "buy_price": 3480,
-        "target_price": 3675,
-        "stop_loss": 3380,
-        "strategy": "MA20 지지선 부근인 3,450원~3,480원 구간에서 2회 분할 매수 후 거래량 동반 반등 시 익절 대응."
-      }
-    }
-  ]
+  "updated_at": "2026-11-03 02:41",
+  "recommendations": []
 }
