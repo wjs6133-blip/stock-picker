@@ -1,0 +1,22 @@
+[
+  {
+    "ticker": "009460",
+    "name": "한창제지",
+    "date": "2026-07-20",
+    "current_price": 2635,
+    "ma20": 2618,
+    "ma60": 2481,
+    "ma20_gap_pct": 0.63,
+    "vol_ratio": 0.61,
+    "drawdown_pct": -7.87,
+    "daily_vol_pct": 2.49,
+    "fwd5d_pct": 17.27,
+    "fwd5d_price": 3090,
+    "fwd10d_pct": 18.6,
+    "fwd10d_price": 3125,
+    "fwd10d_max_pct": 21.44,
+    "fwd10d_max_price": 3200,
+    "fwd20d_max_pct": 28.27,
+    "fwd20d_max_price": 3380
+  }
+]

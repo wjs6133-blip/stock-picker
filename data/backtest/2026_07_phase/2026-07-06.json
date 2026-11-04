@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "053160",
+    "name": "프리엠스",
+    "date": "2026-07-06",
+    "current_price": 9120,
+    "ma20": 8909,
+    "ma60": 8752,
+    "ma20_gap_pct": 2.37,
+    "vol_ratio": 0.59,
+    "drawdown_pct": -5.0,
+    "daily_vol_pct": 3.99,
+    "fwd5d_pct": 1.97,
+    "fwd5d_price": 9300,
+    "fwd10d_pct": -1.43,
+    "fwd10d_price": 8990,
+    "fwd10d_max_pct": 4.93,
+    "fwd10d_max_price": 9570,
+    "fwd20d_max_pct": 4.93,
+    "fwd20d_max_price": 9570
+  },
+  {
+    "ticker": "000815",
+    "name": "삼성화재우",
+    "date": "2026-07-06",
+    "current_price": 417500,
+    "ma20": 414925,
+    "ma60": 391450,
+    "ma20_gap_pct": 0.62,
+    "vol_ratio": 0.54,
+    "drawdown_pct": -4.9,
+    "daily_vol_pct": 2.25,
+    "fwd5d_pct": -5.27,
+    "fwd5d_price": 395500,
+    "fwd10d_pct": -7.54,
+    "fwd10d_price": 386000,
+    "fwd10d_max_pct": 1.32,
+    "fwd10d_max_price": 423000,
+    "fwd20d_max_pct": 1.32,
+    "fwd20d_max_price": 423000
+  }
+]

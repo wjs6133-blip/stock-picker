@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "069080",
+    "name": "웹젠",
+    "date": "2026-07-10",
+    "current_price": 11960,
+    "ma20": 11637,
+    "ma60": 11466,
+    "ma20_gap_pct": 2.77,
+    "vol_ratio": 0.67,
+    "drawdown_pct": -3.16,
+    "daily_vol_pct": 4.19,
+    "fwd5d_pct": -3.34,
+    "fwd5d_price": 11560,
+    "fwd10d_pct": 3.18,
+    "fwd10d_price": 12340,
+    "fwd10d_max_pct": 3.6,
+    "fwd10d_max_price": 12390,
+    "fwd20d_max_pct": 7.36,
+    "fwd20d_max_price": 12840
+  },
+  {
+    "ticker": "066900",
+    "name": "디에이피",
+    "date": "2026-07-10",
+    "current_price": 1835,
+    "ma20": 1789,
+    "ma60": 1740,
+    "ma20_gap_pct": 2.56,
+    "vol_ratio": 0.61,
+    "drawdown_pct": -2.39,
+    "daily_vol_pct": 1.54,
+    "fwd5d_pct": 0.82,
+    "fwd5d_price": 1850,
+    "fwd10d_pct": 0.16,
+    "fwd10d_price": 1838,
+    "fwd10d_max_pct": 2.45,
+    "fwd10d_max_price": 1880,
+    "fwd20d_max_pct": 3.27,
+    "fwd20d_max_price": 1895
+  }
+]

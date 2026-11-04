@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "009460",
+    "name": "한창제지",
+    "date": "2026-07-16",
+    "current_price": 2635,
+    "ma20": 2607,
+    "ma60": 2484,
+    "ma20_gap_pct": 1.05,
+    "vol_ratio": 0.65,
+    "drawdown_pct": -7.87,
+    "daily_vol_pct": 2.59,
+    "fwd5d_pct": 9.49,
+    "fwd5d_price": 2885,
+    "fwd10d_pct": 14.8,
+    "fwd10d_price": 3025,
+    "fwd10d_max_pct": 19.73,
+    "fwd10d_max_price": 3155,
+    "fwd20d_max_pct": 28.27,
+    "fwd20d_max_price": 3380
+  },
+  {
+    "ticker": "155660",
+    "name": "DSR",
+    "date": "2026-07-16",
+    "current_price": 4430,
+    "ma20": 4327,
+    "ma60": 4315,
+    "ma20_gap_pct": 2.36,
+    "vol_ratio": 0.57,
+    "drawdown_pct": -2.74,
+    "daily_vol_pct": 2.36,
+    "fwd5d_pct": 5.87,
+    "fwd5d_price": 4690,
+    "fwd10d_pct": -2.71,
+    "fwd10d_price": 4310,
+    "fwd10d_max_pct": 8.35,
+    "fwd10d_max_price": 4800,
+    "fwd20d_max_pct": 8.35,
+    "fwd20d_max_price": 4800
+  }
+]

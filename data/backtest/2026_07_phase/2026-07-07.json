@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "053160",
+    "name": "프리엠스",
+    "date": "2026-07-07",
+    "current_price": 9140,
+    "ma20": 8983,
+    "ma60": 8748,
+    "ma20_gap_pct": 1.75,
+    "vol_ratio": 0.6,
+    "drawdown_pct": -4.79,
+    "daily_vol_pct": 3.95,
+    "fwd5d_pct": 1.53,
+    "fwd5d_price": 9280,
+    "fwd10d_pct": -0.98,
+    "fwd10d_price": 9050,
+    "fwd10d_max_pct": 4.7,
+    "fwd10d_max_price": 9570,
+    "fwd20d_max_pct": 4.7,
+    "fwd20d_max_price": 9570
+  },
+  {
+    "ticker": "001450",
+    "name": "현대해상",
+    "date": "2026-07-07",
+    "current_price": 37550,
+    "ma20": 37205,
+    "ma60": 34257,
+    "ma20_gap_pct": 0.93,
+    "vol_ratio": 0.66,
+    "drawdown_pct": -8.97,
+    "daily_vol_pct": 2.7,
+    "fwd5d_pct": -0.93,
+    "fwd5d_price": 37200,
+    "fwd10d_pct": -1.2,
+    "fwd10d_price": 37100,
+    "fwd10d_max_pct": 6.39,
+    "fwd10d_max_price": 39950,
+    "fwd20d_max_pct": 11.58,
+    "fwd20d_max_price": 41900
+  }
+]

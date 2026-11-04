@@ -1,0 +1,22 @@
+[
+  {
+    "ticker": "044820",
+    "name": "코스맥스비티아이",
+    "date": "2026-05-20",
+    "current_price": 19320,
+    "ma20": 19090,
+    "ma60": 16785,
+    "ma20_gap_pct": 1.2,
+    "vol_ratio": 0.61,
+    "drawdown_pct": -14.7,
+    "daily_vol_pct": 6.54,
+    "fwd5d_pct": -5.33,
+    "fwd5d_price": 18290,
+    "fwd10d_pct": -10.46,
+    "fwd10d_price": 17300,
+    "fwd10d_max_pct": 6.63,
+    "fwd10d_max_price": 20600,
+    "fwd20d_max_pct": 6.63,
+    "fwd20d_max_price": 20600
+  }
+]

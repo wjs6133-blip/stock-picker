@@ -1,0 +1,22 @@
+[
+  {
+    "ticker": "383220",
+    "name": "F&F",
+    "date": "2026-07-02",
+    "current_price": 79900,
+    "ma20": 77795,
+    "ma60": 74033,
+    "ma20_gap_pct": 2.71,
+    "vol_ratio": 0.56,
+    "drawdown_pct": -6.98,
+    "daily_vol_pct": 3.92,
+    "fwd5d_pct": -1.75,
+    "fwd5d_price": 78500,
+    "fwd10d_pct": -1.13,
+    "fwd10d_price": 79000,
+    "fwd10d_max_pct": 4.26,
+    "fwd10d_max_price": 83300,
+    "fwd20d_max_pct": 4.26,
+    "fwd20d_max_price": 83300
+  }
+]

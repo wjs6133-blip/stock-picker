@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "318660",
+    "name": "타임기술",
+    "date": "2026-07-14",
+    "current_price": 3600,
+    "ma20": 3541,
+    "ma60": 3193,
+    "ma20_gap_pct": 1.65,
+    "vol_ratio": 0.24,
+    "drawdown_pct": -12.2,
+    "daily_vol_pct": 6.37,
+    "fwd5d_pct": -3.19,
+    "fwd5d_price": 3485,
+    "fwd10d_pct": -2.78,
+    "fwd10d_price": 3500,
+    "fwd10d_max_pct": 16.67,
+    "fwd10d_max_price": 4200,
+    "fwd20d_max_pct": 16.67,
+    "fwd20d_max_price": 4200
+  },
+  {
+    "ticker": "053160",
+    "name": "프리엠스",
+    "date": "2026-07-14",
+    "current_price": 9280,
+    "ma20": 9234,
+    "ma60": 8742,
+    "ma20_gap_pct": 0.49,
+    "vol_ratio": 0.55,
+    "drawdown_pct": -3.33,
+    "daily_vol_pct": 2.87,
+    "fwd5d_pct": -2.48,
+    "fwd5d_price": 9050,
+    "fwd10d_pct": -12.82,
+    "fwd10d_price": 8090,
+    "fwd10d_max_pct": 3.12,
+    "fwd10d_max_price": 9570,
+    "fwd20d_max_pct": 3.12,
+    "fwd20d_max_price": 9570
+  }
+]

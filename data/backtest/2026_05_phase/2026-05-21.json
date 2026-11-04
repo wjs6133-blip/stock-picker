@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "302430",
+    "name": "이노메트리",
+    "date": "2026-05-21",
+    "current_price": 9240,
+    "ma20": 9073,
+    "ma60": 7541,
+    "ma20_gap_pct": 1.84,
+    "vol_ratio": 0.47,
+    "drawdown_pct": -13.64,
+    "daily_vol_pct": 4.73,
+    "fwd5d_pct": -6.28,
+    "fwd5d_price": 8660,
+    "fwd10d_pct": -23.38,
+    "fwd10d_price": 7080,
+    "fwd10d_max_pct": 13.64,
+    "fwd10d_max_price": 10500,
+    "fwd20d_max_pct": 13.64,
+    "fwd20d_max_price": 10500
+  },
+  {
+    "ticker": "273060",
+    "name": "와이즈버즈",
+    "date": "2026-05-21",
+    "current_price": 5810,
+    "ma20": 5686,
+    "ma60": 5487,
+    "ma20_gap_pct": 2.18,
+    "vol_ratio": 0.68,
+    "drawdown_pct": -7.04,
+    "daily_vol_pct": 4.59,
+    "fwd5d_pct": -9.47,
+    "fwd5d_price": 5260,
+    "fwd10d_pct": -11.1,
+    "fwd10d_price": 5165,
+    "fwd10d_max_pct": 5.16,
+    "fwd10d_max_price": 6110,
+    "fwd20d_max_pct": 6.28,
+    "fwd20d_max_price": 6175
+  }
+]
