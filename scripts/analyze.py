@@ -157,28 +157,29 @@ def get_recently_recommended(n: int = RECENT_REC_DAYS) -> set:
     return recent
 
 
-def get_market_data() -> tuple[str, float]:
-    """KOSPI 최근 5거래일 추세 + 실제 수익률 반환 (bearish/neutral/bullish, ret5)"""
+def get_market_data() -> tuple[str, float, float]:
+    """KOSPI 최근 5·20거래일 추세 반환 (bearish/neutral/bullish, ret5, ret20)"""
     try:
         end   = datetime.now()
-        start = end - timedelta(days=20)
+        start = end - timedelta(days=60)
         df    = fdr.DataReader('KS11', start.strftime('%Y-%m-%d'), end.strftime('%Y-%m-%d'))
-        if df is None or len(df) < 6:
-            return "neutral", 0.0
+        if df is None or len(df) < 21:
+            return "neutral", 0.0, 0.0
         close = df['Close'].astype(float)
-        ret5  = (float(close.iloc[-1]) - float(close.iloc[-6])) / float(close.iloc[-6])
+        ret5  = (float(close.iloc[-1]) - float(close.iloc[-6]))  / float(close.iloc[-6])
+        ret20 = (float(close.iloc[-1]) - float(close.iloc[-21])) / float(close.iloc[-21])
         if ret5 <= -0.02:
-            return "bearish", ret5
+            return "bearish", ret5, ret20
         if ret5 >= 0.02:
-            return "bullish", ret5
-        return "neutral", ret5
+            return "bullish", ret5, ret20
+        return "neutral", ret5, ret20
     except Exception:
-        return "neutral", 0.0
+        return "neutral", 0.0, 0.0
 
 
-def analyze_chart_rs(ticker: str, kospi_ret5: float) -> dict | None:
-    """약세장 전용 — 지수 하락에도 버티거나 오르는 상대강도 리더 필터"""
-    df = fetch_ohlcv(ticker)
+def analyze_chart_rs(ticker: str, kospi_ret20: float) -> dict | None:
+    """약세장 전용 — 20거래일 기준 지수 아웃퍼폼 + 눌림목 패턴 종목"""
+    df = fetch_ohlcv(ticker, days=160)   # 충분한 기간 확보
     if df is None:
         return None
     try:
@@ -187,7 +188,7 @@ def analyze_chart_rs(ticker: str, kospi_ret5: float) -> dict | None:
         ma20   = close.rolling(20).mean()
         ma60   = close.rolling(60).mean()
 
-        if len(close) < 6:
+        if len(close) < 25:
             return None
 
         cur      = float(close.iloc[-1])
@@ -197,37 +198,42 @@ def analyze_chart_rs(ticker: str, kospi_ret5: float) -> dict | None:
         if any(pd.isna(v) for v in [cur, cur_ma20, cur_ma60]) or cur == 0:
             return None
 
-        # 기본 추세: MA20 > MA60
-        if cur_ma20 < cur_ma60:
+        # ① 20거래일 수익률로 지수 아웃퍼폼 체크
+        ret20 = (cur - float(close.iloc[-21])) / float(close.iloc[-21])
+        rs20  = ret20 - kospi_ret20
+        if rs20 < RS_MIN_OUTPERFORM:   # 지수보다 최소 2%p 초과
             return None
 
-        # 5일 수익률 계산
-        ret5 = (cur - float(close.iloc[-6])) / float(close.iloc[-6])
-
-        # 상대강도 = 종목 수익률 - 지수 수익률 (지수보다 RS_MIN_OUTPERFORM 이상 아웃퍼폼)
-        rs = ret5 - kospi_ret5
-        if rs < RS_MIN_OUTPERFORM:
+        # ② 너무 급락한 종목 제외 (지수는 이기지만 자체 -15% 이상이면 힘 빠진 것)
+        if ret20 < -0.15:
             return None
 
-        # 종목 자체가 -5% 이상 하락이면 제외 (버텨야 RS 리더)
-        if ret5 < -0.05:
+        # ③ 눌림목 조건: MA20 대비 -20% ~ +4% 범위
+        gap = (cur - cur_ma20) / cur_ma20
+        if not (-0.20 <= gap <= 0.04):
             return None
 
-        # MA20 기울기 우상향
-        if len(ma20) < 6 or float(ma20.iloc[-1]) <= float(ma20.iloc[-6]):
-            return None
-
-        # 일변동성 하한
-        daily_vol = float(close.pct_change().dropna().iloc[-20:].std())
-        if daily_vol < MIN_DAILY_VOL:
-            return None
-
+        # ④ 거래량 수축 (눌림목 핵심 조건)
         rv        = float(volume.iloc[-5:].mean())
         bv        = float(volume.iloc[-25:-5].mean())
         vol_ratio = rv / bv if bv > 0 else 1.0
-        gap       = (cur - cur_ma20) / cur_ma20
-        high30    = float(close.iloc[-30:].max())
-        dd        = (cur - high30) / high30
+        if vol_ratio > VOLUME_CONTRACTION:
+            return None
+
+        # ⑤ 고점 대비 drawdown -20% ~ -3% (너무 많이 빠진 것 제외)
+        high30 = float(close.iloc[-30:].max())
+        dd     = (cur - high30) / high30
+        if not (-0.20 <= dd <= -0.03):
+            return None
+
+        # ⑥ MA20 기울기: 최소 하락이 아닐 것 (우상향 or 평탄)
+        if len(ma20) >= 6 and float(ma20.iloc[-1]) < float(ma20.iloc[-6]) * 0.985:
+            return None
+
+        # ⑦ 일변동성 하한
+        daily_vol = float(close.pct_change().dropna().iloc[-20:].std())
+        if daily_vol < MIN_DAILY_VOL:
+            return None
 
         return {
             "ticker"          : ticker,
@@ -238,8 +244,8 @@ def analyze_chart_rs(ticker: str, kospi_ret5: float) -> dict | None:
             "ma20_gap_pct"    : round(gap * 100, 2),
             "vol_ratio"       : round(vol_ratio, 2),
             "drawdown_pct"    : round(dd * 100, 2),
-            "ret5_pct"        : round(ret5 * 100, 2),
-            "rs_vs_kospi_pct" : round(rs * 100, 2),
+            "ret20_pct"       : round(ret20 * 100, 2),
+            "rs20_vs_kospi"   : round(rs20 * 100, 2),
             "is_rs_leader"    : True,
         }
     except Exception:
@@ -443,8 +449,8 @@ def main():
 
     # ── 사전 준비 ─────────────────────────────────────────────
     recently_recommended  = get_recently_recommended()
-    market_trend, kospi_ret5 = get_market_data()
-    print(f"시장 추세: {market_trend} ({kospi_ret5:+.1%}) | 최근 {RECENT_REC_DAYS}일 추천 제외 종목: {len(recently_recommended)}개")
+    market_trend, kospi_ret5, kospi_ret20 = get_market_data()
+    print(f"시장 추세: {market_trend} (5일 {kospi_ret5:+.1%} / 20일 {kospi_ret20:+.1%}) | 최근 {RECENT_REC_DAYS}일 추천 제외 종목: {len(recently_recommended)}개")
 
     name_map = get_name_map()
     tickers  = list(name_map.keys())
@@ -484,7 +490,7 @@ def main():
 
     # 2) 약세장: 상대강도 리더 추가 수집 (지수 하락에도 버티거나 오르는 종목)
     if market_trend == "bearish":
-        print(f"약세장 감지 — 상대강도 리더 병렬 스캔 중... (KOSPI 5일 수익률: {kospi_ret5:+.1%})")
+        print(f"약세장 감지 — 상대강도 리더 병렬 스캔 중... (KOSPI 20일 수익률: {kospi_ret20:+.1%})")
         rs_exclude = {c["ticker"] for c in candidates} | recently_recommended
         rs_scan    = [t for t in tickers if t not in rs_exclude]
 
@@ -495,7 +501,7 @@ def main():
             nonlocal _rs_done
             if _rs_done:
                 return None
-            chart = analyze_chart_rs(ticker, kospi_ret5)
+            chart = analyze_chart_rs(ticker, kospi_ret20)
             if chart:
                 return {**chart, "name": name_map.get(ticker, ticker)}
             return None

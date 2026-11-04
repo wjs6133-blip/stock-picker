@@ -1,3 +1,6 @@
 api/*.py
 scripts/
 requirements.txt
+data/backtest/cache/
+data/backtest/**/2025-*.json
+data/backtest/**/2026-*.json
