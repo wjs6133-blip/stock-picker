@@ -7,6 +7,7 @@ GitHub Actions 전용 — 매일 새벽 실행
 import json
 import os
 import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 
 import FinanceDataReader as fdr
@@ -449,47 +450,87 @@ def main():
     tickers  = list(name_map.keys())
     print(f"전종목 {len(tickers)}개 스캔 중...")
 
-    # 1) 눌림목 후보 수집
+    # 1) 눌림목 후보 수집 — 병렬 처리
+    scan_tickers = [t for t in tickers if t not in recently_recommended]
+    print(f"  병렬 스캔 시작 (workers=20, 대상 {len(scan_tickers)}개)")
+
     candidates = []
-    for i, ticker in enumerate(tickers):
-        if i % 200 == 0:
-            print(f"  {i}/{len(tickers)}")
-            time.sleep(0.3)
-        if ticker in recently_recommended:
-            continue
+    _lock_done = False
+
+    def _scan(ticker):
+        nonlocal _lock_done
+        if _lock_done:
+            return None
         chart = analyze_chart(ticker)
-        if not chart:
-            continue
-        candidates.append({**chart, "name": name_map.get(ticker, ticker)})
-        if len(candidates) >= MAX_CANDIDATES:
-            break
+        if chart:
+            return {**chart, "name": name_map.get(ticker, ticker)}
+        return None
+
+    with ThreadPoolExecutor(max_workers=20) as exe:
+        futures = {exe.submit(_scan, t): t for t in scan_tickers}
+        done = 0
+        for f in as_completed(futures):
+            done += 1
+            if done % 300 == 0:
+                print(f"  {done}/{len(scan_tickers)} 완료, 후보 {len(candidates)}개")
+            result = f.result()
+            if result:
+                candidates.append(result)
+            if len(candidates) >= MAX_CANDIDATES:
+                _lock_done = True  # 나머지 스레드 조기 종료 신호
+
+    candidates = candidates[:MAX_CANDIDATES]
+    print(f"  눌림목 후보 {len(candidates)}개 수집 완료")
 
     # 2) 약세장: 상대강도 리더 추가 수집 (지수 하락에도 버티거나 오르는 종목)
     if market_trend == "bearish":
-        print(f"약세장 감지 — 상대강도 리더 추가 스캔 중... (KOSPI 5일 수익률: {kospi_ret5:+.1%})")
-        rs_tickers = {c["ticker"] for c in candidates} | recently_recommended
+        print(f"약세장 감지 — 상대강도 리더 병렬 스캔 중... (KOSPI 5일 수익률: {kospi_ret5:+.1%})")
+        rs_exclude = {c["ticker"] for c in candidates} | recently_recommended
+        rs_scan    = [t for t in tickers if t not in rs_exclude]
+
         rs_candidates = []
-        for ticker in tickers:
-            if ticker in rs_tickers:
-                continue
+        _rs_done = False
+
+        def _scan_rs(ticker):
+            nonlocal _rs_done
+            if _rs_done:
+                return None
             chart = analyze_chart_rs(ticker, kospi_ret5)
-            if not chart:
-                continue
-            rs_candidates.append({**chart, "name": name_map.get(ticker, ticker)})
-            if len(rs_candidates) >= MAX_RS_CANDIDATES:
-                break
+            if chart:
+                return {**chart, "name": name_map.get(ticker, ticker)}
+            return None
+
+        with ThreadPoolExecutor(max_workers=20) as exe:
+            futures = {exe.submit(_scan_rs, t): t for t in rs_scan}
+            for f in as_completed(futures):
+                result = f.result()
+                if result:
+                    rs_candidates.append(result)
+                if len(rs_candidates) >= MAX_RS_CANDIDATES:
+                    _rs_done = True
+
+        rs_candidates = rs_candidates[:MAX_RS_CANDIDATES]
         print(f"  RS 리더 {len(rs_candidates)}개 발견")
-        # RS 리더를 앞에 배치 (우선 검토)
         candidates = rs_candidates + candidates
         candidates = candidates[:MAX_CANDIDATES]
 
-    print(f"후보 {len(candidates)}개 → 뉴스·차트 수집 중")
+    print(f"후보 {len(candidates)}개 → 뉴스·차트 병렬 수집 중")
 
-    # 2) 세부 데이터 추가 (뉴스 날짜 포함)
+    # 뉴스·차트 병렬 수집
+    def _fetch_detail(c):
+        return c["ticker"], get_news_with_dates(c["ticker"]), get_chart_series(c["ticker"])
+
+    with ThreadPoolExecutor(max_workers=8) as exe:
+        detail_futures = {exe.submit(_fetch_detail, c): c for c in candidates}
+        detail_map = {}
+        for f in as_completed(detail_futures):
+            ticker, news, chart = f.result()
+            detail_map[ticker] = (news, chart)
+
     for c in candidates:
-        c["recent_news"] = get_news_with_dates(c["ticker"])
-        c["chart_data"]  = get_chart_series(c["ticker"])
-        time.sleep(0.2)
+        news, chart = detail_map.get(c["ticker"], ([], []))
+        c["recent_news"] = news
+        c["chart_data"]  = chart
 
     # 3) 1단계: 모멘텀 스코어링 (뉴스 전용 Gemini)
     if not candidates:
