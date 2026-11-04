@@ -24,8 +24,11 @@ MAX_CANDIDATES     = 15
 MAX_RS_CANDIDATES  = 8     # 약세장 상대강도 리더 최대 수집 수
 RECENT_REC_DAYS    = 5    # 최근 N거래일 내 추천된 종목 제외
 RECENT_RET_LIMIT   = -0.03  # 최근 5거래일 수익률 하한 (-3%)
-MIN_DAILY_VOL      = 0.015  # 일변동성 하한 (1.5% 미만이면 +5% 달성 불가능한 방어주)
+MIN_DAILY_VOL      = 0.015  # 일변동성 하한 (1.5% 미만이면 목표% 달성 불가능한 방어주)
 RS_MIN_OUTPERFORM  = 0.02   # 지수 대비 최소 아웃퍼폼 기준 (+2%p)
+
+# 국면별 장중 목표 수익률
+GOAL_PCT = {"bearish": 3, "neutral": 5, "bullish": 8}
 
 
 # ── 데이터 수집 ────────────────────────────────────────────────
@@ -314,11 +317,13 @@ def score_momentum(candidates: list, market_trend: str) -> list:
         "neutral": "현재 KOSPI 중립.",
     }.get(market_trend, "")
 
+    goal = GOAL_PCT.get(market_trend, 5)
+
     prompt = f"""당신은 뉴스 기반 단기 모멘텀 전문 애널리스트입니다.
 시장 상황: {market_note}
 
-아래 종목들의 최근 뉴스(recent_news)를 분석해 향후 2주(10거래일) 안에
-주가가 +5% 이상 오를 수 있는 '상승 모멘텀 강도'를 평가하세요.
+아래 종목들의 최근 뉴스(recent_news)를 분석해 향후 20거래일 안에
+주가가 장중 +{goal}% 이상 오를 수 있는 '상승 모멘텀 강도'를 평가하세요.
 
 ━━━ 평가 기준 ━━━
 90~100: 강력한 연속 모멘텀 (수주 공시 연속, 실적 서프라이즈 시즌, 정책 수혜 직접 수혜주, AI·반도체·방산 테마 대장주)
@@ -383,14 +388,31 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
     prompt = f"""당신은 대한민국 최상위 헤지펀드의 최종 투자 심사역입니다.
 시장 상황: {market_note}
 
+    goal = GOAL_PCT.get(market_trend, 5)
+
+    prompt_goal_line = {
+        "bearish": f"20거래일 안에 장중 +{goal}% (하락장 단기 목표, 보수적)",
+        "neutral": f"20거래일 안에 장중 +{goal}% (횡보장 표준 목표)",
+        "bullish": f"20거래일 안에 장중 +{goal}% (상승장 공격적 목표)",
+    }.get(market_trend, f"20거래일 안에 장중 +{goal}%")
+
+    prompt_stop_pct = {
+        "bearish": "1.5",
+        "neutral": "2.5",
+        "bullish": "3.5",
+    }.get(market_trend, "2.5")
+
+    prompt = f"""당신은 대한민국 최상위 헤지펀드의 최종 투자 심사역입니다.
+시장 상황: {market_note}
+
 아래 종목들은 이미 '모멘텀 1차 검증'을 통과한 후보입니다.
 각 종목의 momentum_score(뉴스 기반 모멘텀 강도)와 차트 지표를 교차 검증해
-2주(10거래일) 안에 장중 +5% 달성 가능성이 가장 높은 종목을 선별하세요.
+{prompt_goal_line} 달성 가능성이 가장 높은 종목을 선별하세요.
 
 ━━━ 최종 선별 기준 ━━━
 1. momentum_score가 높고 continue_probability가 HIGH/MEDIUM인가?
 2. 차트: MA20 기울기 우상향, 거래량 수축 후 반등 에너지 축적 확인
-3. 목표가(+5%)까지 전고점 저항 없는가?
+3. 목표가(+{goal}%)까지 전고점 저항 없는가?
 4. daily_vol_pct ≥ 1.8%인가? (변동성 충분한가)
 5. (약세장 한정) is_rs_leader:true이고 rs_vs_kospi_pct ≥ 2.0인가? → 지수 역행 상승이므로 강한 재료 근거 있음. 우선순위 최상.
 
@@ -419,9 +441,9 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
     }},
     "chart_reason": "MA20/MA60 위치, 거래량 수축, 눌림목 매수 근거 (2문장)",
     "entry_plan": {{
-      "buy_price": 매수가,
-      "target_price": 목표가,
-      "stop_loss": 손절가,
+      "buy_price": 매수가 (현재가 기준 ±1% 이내),
+      "target_price": 목표가 (매수가 대비 +{goal}%),
+      "stop_loss": 손절가 (매수가 대비 -{prompt_stop_pct}%),
       "strategy": "분할매수 타이밍 한 문장"
     }}
   }}
@@ -590,11 +612,15 @@ def main():
 
     date_str = datetime.now().strftime("%Y%m%d")
 
+    goal_pct = GOAL_PCT.get(market_trend, 5)
+
     os.makedirs("data", exist_ok=True)
     with open("data/recommendations.json", "w", encoding="utf-8") as f:
         json.dump({
             "date"            : date_str,
             "updated_at"      : datetime.now().strftime("%Y-%m-%d %H:%M"),
+            "market_trend"    : market_trend,
+            "goal_pct"        : goal_pct,
             "candidates_count": len(candidates),
             "message"         : message,
             "recommendations" : recs,

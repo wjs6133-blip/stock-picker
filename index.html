@@ -637,7 +637,7 @@
     <div class="logo-icon">📈</div>
     <div>
       <h1>눌림목 AI 종목 추천</h1>
-      <p>수급 · 재료 · 차트 3중 검증 · 2주 +5% 목표</p>
+      <p id="headerSubtitle">수급 · 재료 · 차트 3중 검증 · 20일 +5% 목표</p>
     </div>
   </div>
   <div class="header-date" id="headerDate"></div>
@@ -704,6 +704,10 @@
       <button class="bt-year-tab" data-year="2025" onclick="_btSetYear(2025)" style="flex:1;padding:9px;background:none;border:none;border-bottom:2px solid transparent;color:#7d8590;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.5px">2025</button>
       <button class="bt-year-tab active" data-year="2026" onclick="_btSetYear(2026)" style="flex:1;padding:9px;background:none;border:none;border-bottom:2px solid transparent;color:#7d8590;font-size:12px;font-weight:700;cursor:pointer;transition:all .15s;letter-spacing:.5px">2026</button>
       <div style="display:flex;align-items:center;gap:4px;padding:0 10px;margin-left:auto">
+        <button id="btGoal3" onclick="_btSetGoal(3)"  style="padding:4px 8px;border-radius:4px;border:1px solid #30363d;background:none;color:#7d8590;font-size:11px;font-weight:700;cursor:pointer">+3%</button>
+        <button id="btGoal5" onclick="_btSetGoal(5)"  style="padding:4px 8px;border-radius:4px;border:1px solid #58a6ff;background:#58a6ff;color:#0d1117;font-size:11px;font-weight:700;cursor:pointer">+5%</button>
+        <button id="btGoal8" onclick="_btSetGoal(8)"  style="padding:4px 8px;border-radius:4px;border:1px solid #30363d;background:none;color:#7d8590;font-size:11px;font-weight:700;cursor:pointer">+8%</button>
+        <span style="color:#30363d;padding:0 2px">|</span>
         <button id="btModePhase" onclick="_btSetMode('phase')" style="padding:4px 10px;border-radius:4px;border:1px solid #e6b450;background:#e6b450;color:#0d1117;font-size:11px;font-weight:700;cursor:pointer">국면필터</button>
         <button id="btModeOrig"  onclick="_btSetMode('orig')"  style="padding:4px 10px;border-radius:4px;border:1px solid #30363d;background:none;color:#7d8590;font-size:11px;font-weight:700;cursor:pointer">기본</button>
       </div>
@@ -1005,7 +1009,7 @@ function buildCard(r, i) {
         <div class="val">${fmt(p.buy_price)}원</div>
       </div>
       <div class="price-cell p-target">
-        <div class="lbl">🎯 목표 +5%</div>
+        <div class="lbl">🎯 목표 +${window._goalPct || 5}%</div>
         <div class="val">${fmt(p.target_price)}원</div>
       </div>
       <div class="price-cell p-stop">
@@ -1036,9 +1040,16 @@ const PHASE_COLORS = {
   BEAR: { bg: '#2a0d0d', border: '#8b2626', text: '#f85149' },
 };
 
+window._goalPct  = 5;  // 국면별 장중 목표% — loadMarketPhase 후 갱신
+
 async function loadMarketPhase() {
   try {
     const data  = await fetch('/api/phase').then(r => r.json());
+    window._goalPct = data.goal_pct || 5;
+    const sub = document.getElementById('headerSubtitle');
+    if (sub) sub.textContent = `수급 · 재료 · 차트 3중 검증 · 20일 +${window._goalPct}% 목표`;
+    // 백테스트 기본 목표값도 현재 국면에 맞게 설정
+    if (typeof _btSetGoal === 'function') _btSetGoal(window._goalPct);
     const badge = document.getElementById('marketPhaseBadge');
     const c     = PHASE_COLORS[data.phase] || PHASE_COLORS.SIDE;
 
@@ -1667,6 +1678,23 @@ let _btYear     = 2026;
 let _btMonth    = '2026-10';
 let _btSelDate  = null;
 let _btMode     = 'phase';
+let _btGoal     = 5;  // 백테스트 성공 임계값 (%)
+
+function _btSetGoal(g) {
+  _btGoal = g;
+  [3, 5, 8].forEach(v => {
+    const el = document.getElementById(`btGoal${v}`);
+    if (!el) return;
+    const active = v === g;
+    el.style.background  = active ? '#58a6ff' : 'none';
+    el.style.color       = active ? '#0d1117' : '#7d8590';
+    el.style.borderColor = active ? '#58a6ff' : '#30363d';
+  });
+  // 선택된 날짜 다시 렌더 (성공 기준 갱신)
+  if (_btSelDate) _btSelDay(_btSelDate);
+  if (typeof _renderBtSepStats === 'function') _renderBtSepStats();
+  if (typeof _renderBtSepCal   === 'function') _renderBtSepCal();
+}
 
 function _btSetMode(mode) {
   _btMode = mode;
@@ -1765,15 +1793,15 @@ function _renderBtSepStats() {
   const fmax = allPicks.map(p => p.fmax).filter(v => v != null);
   const avg10   = f10.reduce((a, b) => a + b, 0) / f10.length;
   const winRate = f10.filter(v => v > 0).length / f10.length * 100;
-  const hit5    = f10.filter(v => v >= 5).length / f10.length * 100;
-  const maxHit5 = fmax.filter(v => v >= 5).length / fmax.length * 100;
+  const hit5    = f10.filter(v => v >= _btGoal).length / f10.length * 100;
+  const maxHit5 = fmax.filter(v => v >= _btGoal).length / fmax.length * 100;
   const trading = Object.keys(data).length;
 
   document.getElementById("btSepStats").innerHTML = [
     { val: `${trading}거래일`, lbl: "분석 기간", color: "#58a6ff" },
     { val: `${avg10 >= 0 ? "+" : ""}${avg10.toFixed(1)}%`, lbl: "10일 평균수익률", color: avg10 >= 0 ? "#3fb950" : "#ef5350" },
-    { val: `${hit5.toFixed(0)}%`,    lbl: "+5% 달성률",     color: "#f0a400" },
-    { val: `${maxHit5.toFixed(0)}%`, lbl: "20일내 장중+5% 달성", color: "#3fb950" },
+    { val: `${hit5.toFixed(0)}%`,    lbl: `+${_btGoal}% 달성률`,          color: "#f0a400" },
+    { val: `${maxHit5.toFixed(0)}%`, lbl: `20일내 장중+${_btGoal}% 달성`, color: "#3fb950" },
   ].map(s => `
     <div class="bt-stat-box">
       <div class="bt-stat-val" style="color:${s.color}">${s.val}</div>
@@ -1801,7 +1829,7 @@ function _renderBtSepCal() {
       continue;
     }
 
-    const succCnt = picks.filter(p => p.fmax != null && p.fmax >= 5).length;
+    const succCnt = picks.filter(p => p.fmax != null && p.fmax >= _btGoal).length;
     const total   = picks.filter(p => p.fmax != null).length;
     const succPct = total > 0 ? Math.round(succCnt / total * 100) : 0;
     const succClr = succPct >= 60 ? "#3fb950" : succPct >= 40 ? "#e6b450" : "#ef5350";
@@ -1826,7 +1854,7 @@ function _btSelDay(date) {
   const picks = ((_btCache[_btMonth] || {})[date] || []).slice().sort((a, b) => (b.fmax ?? -999) - (a.fmax ?? -999));
   const [, mm, dd] = date.split("-");
 
-  const succCnt = picks.filter(p => p.fmax != null && p.fmax >= 5).length;
+  const succCnt = picks.filter(p => p.fmax != null && p.fmax >= _btGoal).length;
   const totalCnt = picks.filter(p => p.fmax != null).length;
   const succPct = totalCnt > 0 ? Math.round(succCnt / totalCnt * 100) : 0;
   const succClr = succPct >= 60 ? "#3fb950" : succPct >= 40 ? "#e6b450" : "#ef5350";
@@ -1838,18 +1866,18 @@ function _btSelDay(date) {
 
   const fmtRet = (v) => {
     if (v == null) return `<span class="bt-neu">-</span>`;
-    const cls = v >= 5 ? "bt-pos" : v > 0 ? "bt-pos" : v < 0 ? "bt-neg" : "bt-neu";
+    const cls = v >= _btGoal ? "bt-pos" : v > 0 ? "bt-pos" : v < 0 ? "bt-neg" : "bt-neu";
     return `<span class="${cls}">${v >= 0 ? "+" : ""}${v.toFixed(1)}%</span>`;
   };
 
   const fmtResult = (fmax) => {
     if (fmax == null) return `<span class="bt-neu">-</span>`;
-    if (fmax >= 5) return `<span style="background:#1a3a1a;color:#3fb950;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700">✓ 성공</span>`;
+    if (fmax >= _btGoal) return `<span style="background:#1a3a1a;color:#3fb950;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700">✓ 성공</span>`;
     return `<span style="background:#2a1a1a;color:#7d8590;padding:2px 7px;border-radius:4px;font-size:11px">✗ 미달</span>`;
   };
 
   const rows = picks.map((p, i) => {
-    const isSucc = p.fmax != null && p.fmax >= 5;
+    const isSucc = p.fmax != null && p.fmax >= _btGoal;
     const rowBg  = isSucc ? "background:#1a3c2a18" : (p.fmax != null && p.fmax < 0 ? "background:#3a1a1a18" : "");
     return `<tr style="${rowBg};cursor:pointer" onclick="openStockChart('${p.ticker}','${p.name.replace(/'/g,"\\'")}',${p.price})">
       <td>${fmtResult(p.fmax)}</td>
