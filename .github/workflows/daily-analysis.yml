@@ -33,9 +33,12 @@ jobs:
       - name: Check historical performance
         run: python scripts/check_performance.py
 
+      - name: Scan index beater signals
+        run: python scripts/scan_index_beater.py
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/recommendations.json data/history/
+          git add data/recommendations.json data/history/ data/index_beater.json
           git diff --staged --quiet || git commit -m "chore: daily recommendations update" && git push
