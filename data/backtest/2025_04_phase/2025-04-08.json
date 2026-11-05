@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "042420",
+    "name": "네오위즈홀딩스",
+    "date": "2025-04-08",
+    "current_price": 18800,
+    "ma20": 18646,
+    "ma60": 17487,
+    "ma20_gap_pct": 0.82,
+    "vol_ratio": 0.55,
+    "drawdown_pct": -3.14,
+    "daily_vol_pct": 2.23,
+    "fwd5d_pct": 2.55,
+    "fwd5d_price": 19280,
+    "fwd10d_pct": 5.9,
+    "fwd10d_price": 19910,
+    "fwd10d_max_pct": 9.04,
+    "fwd10d_max_price": 20500,
+    "fwd20d_max_pct": 17.82,
+    "fwd20d_max_price": 22150
+  },
+  {
+    "ticker": "003480",
+    "name": "한진중공업홀딩스",
+    "date": "2025-04-08",
+    "current_price": 3660,
+    "ma20": 3604,
+    "ma60": 3561,
+    "ma20_gap_pct": 1.55,
+    "vol_ratio": 0.52,
+    "drawdown_pct": -4.44,
+    "daily_vol_pct": 2.11,
+    "fwd5d_pct": 6.01,
+    "fwd5d_price": 3880,
+    "fwd10d_pct": 15.16,
+    "fwd10d_price": 4215,
+    "fwd10d_max_pct": 15.16,
+    "fwd10d_max_price": 4215,
+    "fwd20d_max_pct": 45.63,
+    "fwd20d_max_price": 5330
+  }
+]

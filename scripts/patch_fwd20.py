@@ -11,20 +11,11 @@ import pandas as pd
 
 CACHE_DIR = Path("data/backtest/cache")
 
-DIRS = [
-    "data/backtest/september_2025",
-    "data/backtest/2025_10",
-    "data/backtest/2026_01_orig",   "data/backtest/2026_01_phase",
-    "data/backtest/2026_02_orig",   "data/backtest/2026_02_phase",
-    "data/backtest/2026_03_orig",   "data/backtest/2026_03_phase",
-    "data/backtest/2026_04_orig",   "data/backtest/2026_04_phase",
-    "data/backtest/2026_05_orig",   "data/backtest/2026_05_phase",
-    "data/backtest/2026_06_orig",   "data/backtest/2026_06_phase",
-    "data/backtest/2026_07_orig",   "data/backtest/2026_07_phase",
-    "data/backtest/2026_08_orig",   "data/backtest/2026_08_phase",
-    "data/backtest/2026_09_orig",   "data/backtest/2026_09_phase",
-    "data/backtest/2026_10_orig",   "data/backtest/2026_10_phase",
-]
+_bt_root = Path("data/backtest")
+DIRS = sorted(
+    str(p) for p in _bt_root.iterdir()
+    if p.is_dir() and p.name != "cache"
+)
 
 _cache = {}
 

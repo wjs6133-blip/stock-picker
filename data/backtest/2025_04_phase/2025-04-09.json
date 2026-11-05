@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "456010",
+    "name": "아이씨티케이",
+    "date": "2025-04-09",
+    "current_price": 13290,
+    "ma20": 12907,
+    "ma60": 10641,
+    "ma20_gap_pct": 2.97,
+    "vol_ratio": 0.53,
+    "drawdown_pct": -4.25,
+    "daily_vol_pct": 5.22,
+    "fwd5d_pct": 20.99,
+    "fwd5d_price": 16080,
+    "fwd10d_pct": 18.89,
+    "fwd10d_price": 15800,
+    "fwd10d_max_pct": 31.68,
+    "fwd10d_max_price": 17500,
+    "fwd20d_max_pct": 33.63,
+    "fwd20d_max_price": 17760
+  },
+  {
+    "ticker": "123750",
+    "name": "알톤",
+    "date": "2025-04-09",
+    "current_price": 1520,
+    "ma20": 1502,
+    "ma60": 1488,
+    "ma20_gap_pct": 1.19,
+    "vol_ratio": 0.65,
+    "drawdown_pct": -6.69,
+    "daily_vol_pct": 2.76,
+    "fwd5d_pct": 1.25,
+    "fwd5d_price": 1539,
+    "fwd10d_pct": 0.26,
+    "fwd10d_price": 1524,
+    "fwd10d_max_pct": 2.57,
+    "fwd10d_max_price": 1559,
+    "fwd20d_max_pct": 5.26,
+    "fwd20d_max_price": 1600
+  }
+]
