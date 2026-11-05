@@ -1,7 +1,9 @@
 {
-  "date": "20261104",
-  "updated_at": "2026-11-04 07:03",
-  "candidates_count": 15,
-  "message": "후보 15개 → 모멘텀 1개 → 최종 0개",
+  "date": "20261105",
+  "updated_at": "2026-11-05 02:32",
+  "market_trend": "bearish",
+  "goal_pct": 3,
+  "candidates_count": 0,
+  "message": "오늘은 조건을 충족하는 종목이 없습니다.",
   "recommendations": []
 }
