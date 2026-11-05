@@ -1,6 +1,7 @@
 .vercel
 __pycache__/
 *.pyc
+data/backtest/cache/
 data/job_log.txt
 data/jobs.json
 data/projects.json
