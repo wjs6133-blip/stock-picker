@@ -31,17 +31,32 @@ function calcStats(closes) {
   };
 }
 
+function calcRSI14(closes) {
+  if (closes.length < 15) return null;
+  const arr = closes.slice(-15);
+  let avgGain = 0, avgLoss = 0;
+  for (let i = 1; i <= 14; i++) {
+    const d = arr[i] - arr[i - 1];
+    if (d > 0) avgGain += d; else avgLoss += Math.abs(d);
+  }
+  avgGain /= 14; avgLoss /= 14;
+  if (avgLoss === 0) return 100;
+  return parseFloat((100 - 100 / (1 + avgGain / avgLoss)).toFixed(1));
+}
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   try {
     const [ksCloses, kdCloses] = await Promise.all([
-      fetchCloses('KOSPI',  35),
-      fetchCloses('KOSDAQ', 35),
+      fetchCloses('KOSPI',  40),
+      fetchCloses('KOSDAQ', 40),
     ]);
 
     const ks = calcStats(ksCloses);
     if (!ks) return res.json({ phase: 'SIDE', label: '횡보장', emoji: '🟡', note: 'insufficient_data' });
-    const kd = calcStats(kdCloses);
+    const kd    = calcStats(kdCloses);
+    const ksRSI = calcRSI14(ksCloses);
+    const kdRSI = calcRSI14(kdCloses);
 
     // ── 국면 판단 ──
     let phase, label, emoji, guide;
@@ -54,6 +69,7 @@ export default async function handler(req, res) {
       reasons.push(`KOSPI가 MA20 대비 +${ks.gapPct.toFixed(1)}% 위에서 거래 중`);
       if (ks.slope > 0) reasons.push(`MA20 기울기 우상향 (5일 전 대비 +${Math.round(ks.slope)}p)`);
       if (ks.ret5  > 0) reasons.push(`코스피 5일 수익률 ${ks.ret5.toFixed(1)}% 양호`);
+      if (ksRSI != null) reasons.push(`KOSPI RSI(14) ${ksRSI} — 상승 모멘텀 유효`);
     } else if (ks.gapPct < -3 || ks.slope < -(ks.ma20 * 0.012)) {
       phase = 'BEAR'; label = '하락장'; emoji = '🔴'; goal_pct = 3;
       guide = '단기 2~3일 장중 익절 목표 · 10일 보유 금지 · 최대 5종목 · 장중 +3% 목표';
@@ -61,6 +77,8 @@ export default async function handler(req, res) {
       if (ks.slope < -(ks.ma20 * 0.012)) reasons.push(`MA20 기울기 급격히 하락 (5일 전 대비 ${Math.round(ks.slope)}p)`);
       if (ks.ret5  < 0) reasons.push(`코스피 5일 수익률 ${ks.ret5.toFixed(1)}% 약세`);
       if (ks.ret20 < 0) reasons.push(`코스피 20일 수익률 ${ks.ret20.toFixed(1)}% — 추세 하향`);
+      if (ksRSI != null && ksRSI < 40) reasons.push(`KOSPI RSI(14) ${ksRSI} — 매도 우위 모멘텀`);
+      else if (ksRSI != null) reasons.push(`KOSPI RSI(14) ${ksRSI} — 반등 가능성 주시`);
     } else {
       phase = 'SIDE'; label = '횡보장'; emoji = '🟡'; goal_pct = 5;
       guide = '5일 단기 보유 · MA20 근접 종목 · 고변동(4~7%) 집중 · 장중 +5% 목표';
@@ -84,11 +102,13 @@ export default async function handler(req, res) {
       kospi_ret20: Math.round(ks.ret20 * 10) / 10,
       gap_pct:    Math.round(ks.gapPct * 10) / 10,
       slope:      Math.round(ks.slope),
+      kospi_rsi:   ksRSI,
       kosdaq:      kd ? Math.round(kd.cur)      : null,
       kosdaq_ma20: kd ? Math.round(kd.ma20)     : null,
       kosdaq_ret5: kd ? Math.round(kd.ret5 * 10) / 10 : null,
       kosdaq_ret20:kd ? Math.round(kd.ret20* 10) / 10 : null,
       kosdaq_gap:  kd ? Math.round(kd.gapPct* 10) / 10 : null,
+      kosdaq_rsi:  kdRSI,
     });
   } catch (e) {
     res.status(500).json({ phase: 'SIDE', label: '횡보장', emoji: '🟡', error: e.message });

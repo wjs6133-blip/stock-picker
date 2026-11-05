@@ -842,6 +842,27 @@ function calcMA(data, period) {
   return result;
 }
 
+function calcRSI(data, period = 14) {
+  const result = [];
+  if (data.length < period + 1) return result;
+  let avgGain = 0, avgLoss = 0;
+  for (let i = 1; i <= period; i++) {
+    const diff = data[i].close - data[i - 1].close;
+    if (diff > 0) avgGain += diff; else avgLoss += Math.abs(diff);
+  }
+  avgGain /= period; avgLoss /= period;
+  for (let i = period; i < data.length; i++) {
+    if (i > period) {
+      const diff = data[i].close - data[i - 1].close;
+      avgGain = (avgGain * (period - 1) + (diff > 0 ? diff : 0)) / period;
+      avgLoss = (avgLoss * (period - 1) + (diff < 0 ? Math.abs(diff) : 0)) / period;
+    }
+    const rsi = avgLoss === 0 ? 100 : 100 - (100 / (1 + avgGain / avgLoss));
+    result.push({ time: data[i].time, value: parseFloat(rsi.toFixed(2)) });
+  }
+  return result;
+}
+
 function makeLWChart(container) {
   return LightweightCharts.createChart(container, { ...LW_OPTS });
 }
@@ -1073,6 +1094,25 @@ async function loadMarketPhase() {
     const fmtPct = (v, plus = true) => v == null ? '-' :
       `<span style="color:${v > 0 ? '#3fb950' : v < 0 ? '#ef5350' : '#7d8590'};font-weight:700">${plus && v > 0 ? '+' : ''}${v.toFixed(1)}%</span>`;
 
+    // RSI 게이지 렌더러
+    const rsiGauge = (rsi, label) => {
+      if (rsi == null) return '';
+      const pct   = Math.min(100, Math.max(0, rsi));
+      const color = rsi >= 70 ? '#ef5350' : rsi <= 30 ? '#26a69a' : rsi >= 55 ? '#ff9800' : '#7d8590';
+      const zone  = rsi >= 70 ? '과매수' : rsi <= 30 ? '과매도' : rsi >= 50 ? '중립↑' : '중립↓';
+      return `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="color:#8b949e;font-size:12px;min-width:52px">${label} RSI</span>
+          <div style="flex:1;max-width:120px;height:5px;background:#30363d;border-radius:3px;position:relative">
+            <div style="position:absolute;left:0;top:0;height:100%;width:${pct}%;background:${color};border-radius:3px;transition:width .4s"></div>
+            <div style="position:absolute;left:30%;top:-2px;width:1px;height:9px;background:#484f58"></div>
+            <div style="position:absolute;left:70%;top:-2px;width:1px;height:9px;background:#484f58"></div>
+          </div>
+          <span style="font-weight:700;color:${color};font-size:12px;min-width:28px">${rsi}</span>
+          <span style="color:#484f58;font-size:11px">${zone}</span>
+        </div>`;
+    };
+
     const ksRow = data.kospi ? `
       <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:4px">
         <span style="color:#8b949e;font-size:12px;min-width:52px">KOSPI</span>
@@ -1093,6 +1133,13 @@ async function loadMarketPhase() {
         <span style="font-size:11px;color:#7d8590">20일 ${fmtPct(data.kosdaq_ret20)}</span>
       </div>` : '';
 
+    const rsiRow = (data.kospi_rsi != null || data.kosdaq_rsi != null) ? `
+      <div style="margin-top:6px;padding-top:6px;border-top:1px solid #21262d">
+        <div style="color:#7d8590;font-size:11px;margin-bottom:4px">모멘텀 (RSI 14)</div>
+        ${rsiGauge(data.kospi_rsi, 'KOSPI')}
+        ${data.kosdaq_rsi != null ? rsiGauge(data.kosdaq_rsi, 'KOSDAQ') : ''}
+      </div>` : '';
+
     const reasonsHtml = (data.reasons || []).map(r =>
       `<div style="display:flex;gap:5px;align-items:flex-start"><span style="color:${c.text};margin-top:1px">▸</span><span>${r}</span></div>`
     ).join('');
@@ -1105,6 +1152,7 @@ async function loadMarketPhase() {
         <span style="color:#484f58;font-size:11px;margin-left:auto">실시간</span>
       </div>
       ${ksRow}${kdRow}
+      ${rsiRow}
       ${reasonsHtml ? `<div style="margin-top:8px;padding-top:8px;border-top:1px solid #21262d;color:#8b949e;font-size:11px;line-height:1.8">${reasonsHtml}</div>` : ''}
       <div style="margin-top:8px;padding-top:8px;border-top:1px solid #21262d;color:#8b949e;font-size:11px">
         💡 전략: <span style="color:${c.text}">${data.guide}</span>
@@ -1339,8 +1387,13 @@ let _modalTicker    = '';
 let _volVisible     = true;
 
 let _modalEntryPrice = null;
+let _modalSignalDate = null;   // 금색 봉 표시용 (지수역행 시그널일)
+let _modalRSIChart   = null;
+let _modalRSIVisible = true;
+let _rsiSyncUnsub    = null;
 
-function openStockChart(ticker, name, entryPrice) {
+function openStockChart(ticker, name, entryPrice, signalDate = null) {
+  _modalSignalDate = signalDate || null;
   document.getElementById("stockChartName").textContent = name;
   document.getElementById("stockChartTickerLabel").textContent = `KRX:${ticker}`;
   _modalEntryPrice = entryPrice ? Number(entryPrice) : null;
@@ -1375,8 +1428,10 @@ function openStockChart(ticker, name, entryPrice) {
         </div>
         <div style="width:1px;height:20px;background:#30363d;margin:0 2px;"></div>
         <button id="kbtn-VOL" class="kline-btn active" onclick="toggleModalVol()">거래량</button>
+        <button id="kbtn-RSI" class="kline-btn active" onclick="toggleModalRSI()">RSI</button>
       </div>
       <div id="lw-modal-el" style="flex:1;min-height:0;"></div>
+      <div id="lw-rsi-el" style="height:110px;border-top:1px solid #30363d;position:relative;"></div>
     </div>`;
 
   document.getElementById("stockChartModal").classList.add("open");
@@ -1405,9 +1460,18 @@ function _applyModalData(rawData) {
   _clearModalSeries();
 
   const data = rawData || [];
+  const GOLD = '#ffd700';
+
+  // 시그널일 봉 금색 처리
+  const coloredData = data.map(d => {
+    if (_modalSignalDate && d.time === _modalSignalDate) {
+      return { ...d, color: GOLD, borderColor: GOLD, wickColor: GOLD };
+    }
+    return d;
+  });
 
   const cs = _modalLWChart.addCandlestickSeries({ upColor: UP_CLR, downColor: DN_CLR, borderUpColor: UP_CLR, borderDownColor: DN_CLR, wickUpColor: UP_CLR, wickDownColor: DN_CLR });
-  cs.setData(data);
+  cs.setData(coloredData);
 
   // 고거래량 마커: 거래량 상위 5일만 종가 표시
   const TOP_N = 5;
@@ -1423,7 +1487,17 @@ function _applyModalData(rawData) {
       text:     d.close.toLocaleString('ko-KR'),
       size:     1,
     }));
-  if (volMarkers.length) cs.setMarkers(volMarkers);
+
+  // 지수역행 시그널일 화살표 마커 추가
+  const markers = [...volMarkers];
+  if (_modalSignalDate) {
+    const sigBar = data.find(d => d.time === _modalSignalDate);
+    if (sigBar) {
+      markers.push({ time: _modalSignalDate, position: 'belowBar', color: GOLD, shape: 'arrowUp', text: '지수역행', size: 2 });
+    }
+  }
+  markers.sort((a, b) => a.time < b.time ? -1 : 1);
+  if (markers.length) cs.setMarkers(markers);
 
   // 매수 진입가 수평선
   if (_modalEntryPrice) {
@@ -1458,6 +1532,37 @@ function _applyModalData(rawData) {
   });
 
   _modalLWChart.timeScale().fitContent();
+
+  // RSI 패널
+  if (_rsiSyncUnsub) { try { _rsiSyncUnsub(); } catch(e){} _rsiSyncUnsub = null; }
+  if (_modalRSIChart) { try { _modalRSIChart.remove(); } catch(e){} _modalRSIChart = null; }
+  const rsiEl = document.getElementById('lw-rsi-el');
+  if (rsiEl && _modalRSIVisible) {
+    _modalRSIChart = LightweightCharts.createChart(rsiEl, {
+      layout: { background: { color: '#0d1117' }, textColor: '#7d8590' },
+      grid: { vertLines: { color: '#21262d' }, horzLines: { color: '#21262d' } },
+      rightPriceScale: { borderColor: '#30363d', scaleMargins: { top: 0.1, bottom: 0.1 } },
+      timeScale: { borderColor: '#30363d', visible: false },
+      crosshair: { mode: 1 },
+      handleScroll: false, handleScale: false,
+    });
+    const rsiData = calcRSI(data);
+    const rsiSeries = _modalRSIChart.addLineSeries({
+      color: '#ff9800', lineWidth: 1,
+      priceLineVisible: false, lastValueVisible: true,
+      priceFormat: { type: 'custom', formatter: v => v.toFixed(1) },
+    });
+    rsiSeries.setData(rsiData);
+    rsiSeries.createPriceLine({ price: 70, color: '#ef5350', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '70' });
+    rsiSeries.createPriceLine({ price: 50, color: '#555e6a', lineWidth: 1, lineStyle: 2, axisLabelVisible: false });
+    rsiSeries.createPriceLine({ price: 30, color: '#26a69a', lineWidth: 1, lineStyle: 2, axisLabelVisible: true, title: '30' });
+    _modalRSIChart.timeScale().fitContent();
+
+    // 타임스케일 동기화
+    const syncToRSI = range => { if (range) try { _modalRSIChart?.timeScale().setVisibleLogicalRange(range); } catch(e){} };
+    _modalLWChart.timeScale().subscribeVisibleLogicalRangeChange(syncToRSI);
+    _rsiSyncUnsub = () => _modalLWChart.timeScale().unsubscribeVisibleLogicalRangeChange(syncToRSI);
+  }
 }
 
 async function setModalPeriod(p) {
@@ -1506,8 +1611,24 @@ function toggleModalVol() {
   document.getElementById('kbtn-VOL')?.classList.toggle('active', _volVisible);
 }
 
+function toggleModalRSI() {
+  _modalRSIVisible = !_modalRSIVisible;
+  document.getElementById('kbtn-RSI')?.classList.toggle('active', _modalRSIVisible);
+  const el = document.getElementById('lw-rsi-el');
+  if (el) el.style.display = _modalRSIVisible ? '' : 'none';
+  if (_modalRSIVisible) {
+    // 다시 켤 때 현재 데이터로 재생성
+    if (_modalPeriod) setModalPeriod(_modalPeriod);
+  } else {
+    if (_rsiSyncUnsub) { try { _rsiSyncUnsub(); } catch(e){} _rsiSyncUnsub = null; }
+    if (_modalRSIChart) { try { _modalRSIChart.remove(); } catch(e){} _modalRSIChart = null; }
+  }
+}
+
 function closeStockChartDirect() {
   document.getElementById("stockChartModal").classList.remove("open");
+  if (_rsiSyncUnsub) { try { _rsiSyncUnsub(); } catch(e){} _rsiSyncUnsub = null; }
+  if (_modalRSIChart) { try { _modalRSIChart.remove(); } catch(e){} _modalRSIChart = null; }
   if (_modalLWChart) { _clearModalSeries(); try { _modalLWChart.remove(); } catch(e){} _modalLWChart = null; }
   document.getElementById("stockChartContainer").innerHTML = "";
   document.body.style.overflow = "";
@@ -1991,7 +2112,7 @@ function _renderIb() {
     const kospiCol  = s.kospi_pct < 0 ? '#f85149' : '#3fb950';
     const ticker    = s.ticker.replace(/'/g, '');
     const name      = s.name.replace(/'/g, '');
-    return `<div onclick="openStockChart('${ticker}','${name}',${s.signal_close})"
+    return `<div onclick="openStockChart('${ticker}','${name}',${s.signal_close},'${s.signal_date}')"
       style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid #21262d;font-size:13px;cursor:pointer;transition:background .15s"
       onmouseover="this.style.background='#161b22'" onmouseout="this.style.background=''">
       <div style="min-width:52px;color:#7d8590;font-size:11px">${s.signal_date.slice(5)}</div>
