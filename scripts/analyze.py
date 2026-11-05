@@ -1,8 +1,9 @@
 """
 GitHub Actions 전용 — 매일 새벽 실행
-1. FinanceDataReader로 눌림목 후보 수집
-2. Gemini AI 심사
-3. 차트·수급·뉴스 데이터 포함 → data/recommendations.json 저장
+1. TradingView 스크리너로 눌림목 후보 1차 필터 (수초)
+2. FDR로 소수 후보 MA20 기울기 검증
+3. Gemini AI 심사
+4. 차트·수급·뉴스 데이터 포함 → data/recommendations.json 저장
 """
 import json
 import os
@@ -15,6 +16,7 @@ from google import genai
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from tradingview_screener import Query, col as tvcol
 
 VOLUME_CONTRACTION = 0.65
 MA20_BAND          = 0.04
@@ -255,6 +257,170 @@ def analyze_chart_rs(ticker: str, kospi_ret20: float) -> dict | None:
         return None
 
 
+def _tv_ticker(raw: str) -> str:
+    """KRX:005930 → 005930"""
+    return raw.split(":")[-1]
+
+
+def scan_tv_pullback(recently_recommended: set) -> list:
+    """TradingView 스크리너로 눌림목 후보 1차 필터 (수초 완료)"""
+    try:
+        _, df = (Query()
+            .set_markets('korea')
+            .select(
+                'name', 'close', 'volume',
+                'SMA20', 'SMA60',
+                'relative_volume_10d_calc',
+                'Volatility.D',
+                'High.1M',
+            )
+            .where(
+                tvcol('close') > 1000,
+                tvcol('volume') > 50000,
+                tvcol('SMA20') > 0,
+                tvcol('SMA60') > 0,
+                tvcol('High.1M') > 0,
+                tvcol('relative_volume_10d_calc') < VOLUME_CONTRACTION,
+                tvcol('Volatility.D') > MIN_DAILY_VOL * 100,
+            )
+            .limit(500)
+            .get_scanner_data()
+        )
+    except Exception as e:
+        print(f"TV 스크리너 오류: {e}")
+        return []
+
+    candidates = []
+    for _, row in df.iterrows():
+        ticker = _tv_ticker(row['ticker'])
+        if ticker in recently_recommended:
+            continue
+        close = row.get('close') or 0
+        sma20 = row.get('SMA20') or 0
+        sma60 = row.get('SMA60') or 0
+        high1m = row.get('High.1M') or 0
+        vol_ratio = row.get('relative_volume_10d_calc') or 1.0
+
+        if not (close > 0 and sma20 > 0 and sma60 > 0 and high1m > 0):
+            continue
+        if sma20 <= sma60:
+            continue
+
+        gap = (close - sma20) / sma20
+        if not (DRAWDOWN_MAX <= gap <= MA20_BAND):
+            continue
+
+        dd = (close - high1m) / high1m
+        if not (DRAWDOWN_MIN <= dd <= DRAWDOWN_MAX):
+            continue
+
+        candidates.append({
+            "ticker"       : ticker,
+            "current_price": int(close),
+            "ma20"         : int(sma20),
+            "ma60"         : int(sma60),
+            "ma20_gap_pct" : round(gap * 100, 2),
+            "vol_ratio"    : round(vol_ratio, 2),
+            "drawdown_pct" : round(dd * 100, 2),
+            "daily_vol_pct": round(row.get('Volatility.D') or 0, 2),
+        })
+
+    return candidates[:MAX_CANDIDATES * 3]
+
+
+def scan_tv_rs(recently_recommended: set, kospi_ret20: float) -> list:
+    """약세장 전용 — TradingView로 20일 아웃퍼폼 + 눌림목 후보 (수초)"""
+    min_perf = kospi_ret20 * 100 + (RS_MIN_OUTPERFORM * 100)
+    try:
+        _, df = (Query()
+            .set_markets('korea')
+            .select(
+                'name', 'close', 'volume',
+                'SMA20', 'SMA60',
+                'relative_volume_10d_calc',
+                'Volatility.D',
+                'High.1M',
+                'Perf.1M',
+            )
+            .where(
+                tvcol('close') > 1000,
+                tvcol('volume') > 50000,
+                tvcol('SMA20') > 0,
+                tvcol('SMA60') > 0,
+                tvcol('High.1M') > 0,
+                tvcol('Perf.1M') > min_perf,
+                tvcol('Perf.1M') < 20,          # 너무 급등한 종목 제외
+                tvcol('relative_volume_10d_calc') < VOLUME_CONTRACTION,
+                tvcol('Volatility.D') > MIN_DAILY_VOL * 100,
+            )
+            .limit(300)
+            .get_scanner_data()
+        )
+    except Exception as e:
+        print(f"TV RS 스크리너 오류: {e}")
+        return []
+
+    candidates = []
+    for _, row in df.iterrows():
+        ticker = _tv_ticker(row['ticker'])
+        if ticker in recently_recommended:
+            continue
+        close  = row.get('close') or 0
+        sma20  = row.get('SMA20') or 0
+        sma60  = row.get('SMA60') or 0
+        high1m = row.get('High.1M') or 0
+        perf1m = row.get('Perf.1M') or 0
+
+        if not (close > 0 and sma20 > 0 and high1m > 0):
+            continue
+
+        gap = (close - sma20) / sma20
+        if not (-0.20 <= gap <= 0.04):
+            continue
+
+        dd = (close - high1m) / high1m
+        if not (-0.20 <= dd <= -0.03):
+            continue
+
+        rs20 = perf1m - kospi_ret20 * 100
+        candidates.append({
+            "ticker"          : ticker,
+            "current_price"   : int(close),
+            "ma20"            : int(sma20),
+            "ma60"            : int(sma60) if sma60 else int(sma20),
+            "ma20_gap_pct"    : round(gap * 100, 2),
+            "vol_ratio"       : round(row.get('relative_volume_10d_calc') or 1.0, 2),
+            "drawdown_pct"    : round(dd * 100, 2),
+            "daily_vol_pct"   : round(row.get('Volatility.D') or 0, 2),
+            "ret20_pct"       : round(perf1m, 2),
+            "rs20_vs_kospi"   : round(rs20, 2),
+            "is_rs_leader"    : True,
+        })
+
+    return candidates[:MAX_RS_CANDIDATES * 3]
+
+
+def verify_ma_slope(ticker: str) -> bool:
+    """MA20 기울기 검증 — TV에서 못 가져온 조건만 FDR로 확인"""
+    df = fetch_ohlcv(ticker, days=60)
+    if df is None or len(df) < 25:
+        return False
+    try:
+        close = df['Close'].astype(float)
+        ma20  = close.rolling(20).mean()
+        # MA20 기울기: 5일 전보다 높아야 함
+        if float(ma20.iloc[-1]) <= float(ma20.iloc[-6]):
+            return False
+        # 최근 5거래일 수익률 하한
+        if len(close) >= 6:
+            ret5 = (float(close.iloc[-1]) - float(close.iloc[-6])) / float(close.iloc[-6])
+            if ret5 < RECENT_RET_LIMIT:
+                return False
+        return True
+    except Exception:
+        return False
+
+
 def get_news_with_dates(ticker: str, days: int = 14) -> list:
     """최근 N일 내 뉴스 최대 10건 (날짜 포함) — 오래된 뉴스 제외"""
     try:
@@ -385,9 +551,6 @@ def ask_gemini(candidates: list, market_trend: str = "neutral") -> list:
         "neutral": "KOSPI 중립.",
     }.get(market_trend, "")
 
-    prompt = f"""당신은 대한민국 최상위 헤지펀드의 최종 투자 심사역입니다.
-시장 상황: {market_note}
-
     goal = GOAL_PCT.get(market_trend, 5)
 
     prompt_goal_line = {
@@ -475,69 +638,47 @@ def main():
     print(f"시장 추세: {market_trend} (5일 {kospi_ret5:+.1%} / 20일 {kospi_ret20:+.1%}) | 최근 {RECENT_REC_DAYS}일 추천 제외 종목: {len(recently_recommended)}개")
 
     name_map = get_name_map()
-    tickers  = list(name_map.keys())
-    print(f"전종목 {len(tickers)}개 스캔 중...")
 
-    # 1) 눌림목 후보 수집 — 병렬 처리
-    scan_tickers = [t for t in tickers if t not in recently_recommended]
-    print(f"  병렬 스캔 시작 (workers=20, 대상 {len(scan_tickers)}개)")
+    # 1) TV 스크리너로 눌림목 후보 1차 필터 (수초)
+    print("TradingView 스크리너로 눌림목 후보 수집 중...")
+    tv_candidates = scan_tv_pullback(recently_recommended)
+    print(f"  TV 1차 필터: {len(tv_candidates)}개 → MA20 기울기 검증 중...")
 
-    candidates = []
-    _lock_done = False
-
-    def _scan(ticker):
-        nonlocal _lock_done
-        if _lock_done:
-            return None
-        chart = analyze_chart(ticker)
-        if chart:
-            return {**chart, "name": name_map.get(ticker, ticker)}
+    # 2) MA20 기울기 + 최근 수익률 검증 (소수 종목만 FDR)
+    def _verify(c):
+        if verify_ma_slope(c["ticker"]):
+            return {**c, "name": name_map.get(c["ticker"], c["ticker"])}
         return None
 
+    candidates = []
     with ThreadPoolExecutor(max_workers=20) as exe:
-        futures = {exe.submit(_scan, t): t for t in scan_tickers}
-        done = 0
-        for f in as_completed(futures):
-            done += 1
-            if done % 300 == 0:
-                print(f"  {done}/{len(scan_tickers)} 완료, 후보 {len(candidates)}개")
-            result = f.result()
+        for result in exe.map(_verify, tv_candidates):
             if result:
                 candidates.append(result)
-            if len(candidates) >= MAX_CANDIDATES:
-                _lock_done = True  # 나머지 스레드 조기 종료 신호
 
     candidates = candidates[:MAX_CANDIDATES]
-    print(f"  눌림목 후보 {len(candidates)}개 수집 완료")
+    print(f"  눌림목 후보 최종 {len(candidates)}개")
 
-    # 2) 약세장: 상대강도 리더 추가 수집 (지수 하락에도 버티거나 오르는 종목)
+    # 3) 약세장: TV 스크리너로 RS 리더 추가 수집
     if market_trend == "bearish":
-        print(f"약세장 감지 — 상대강도 리더 병렬 스캔 중... (KOSPI 20일 수익률: {kospi_ret20:+.1%})")
+        print(f"약세장 감지 — TV RS 스크리너 중... (KOSPI 20일 {kospi_ret20:+.1%})")
         rs_exclude = {c["ticker"] for c in candidates} | recently_recommended
-        rs_scan    = [t for t in tickers if t not in rs_exclude]
+        tv_rs = [c for c in scan_tv_rs(recently_recommended, kospi_ret20)
+                 if c["ticker"] not in rs_exclude]
 
-        rs_candidates = []
-        _rs_done = False
-
-        def _scan_rs(ticker):
-            nonlocal _rs_done
-            if _rs_done:
-                return None
-            chart = analyze_chart_rs(ticker, kospi_ret20)
-            if chart:
-                return {**chart, "name": name_map.get(ticker, ticker)}
+        def _verify_rs(c):
+            if verify_ma_slope(c["ticker"]):
+                return {**c, "name": name_map.get(c["ticker"], c["ticker"])}
             return None
 
+        rs_candidates = []
         with ThreadPoolExecutor(max_workers=20) as exe:
-            futures = {exe.submit(_scan_rs, t): t for t in rs_scan}
-            for f in as_completed(futures):
-                result = f.result()
+            for result in exe.map(_verify_rs, tv_rs):
                 if result:
                     rs_candidates.append(result)
-                if len(rs_candidates) >= MAX_RS_CANDIDATES:
-                    _rs_done = True
+                    if len(rs_candidates) >= MAX_RS_CANDIDATES:
+                        break
 
-        rs_candidates = rs_candidates[:MAX_RS_CANDIDATES]
         print(f"  RS 리더 {len(rs_candidates)}개 발견")
         candidates = rs_candidates + candidates
         candidates = candidates[:MAX_CANDIDATES]
