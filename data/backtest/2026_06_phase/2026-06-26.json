@@ -1,0 +1,22 @@
+[
+  {
+    "ticker": "023530",
+    "name": "롯데쇼핑",
+    "date": "2026-06-26",
+    "current_price": 174700,
+    "ma20": 178255,
+    "ma60": 147173,
+    "ma20_gap_pct": -1.99,
+    "vol_ratio": 0.68,
+    "drawdown_pct": -14.15,
+    "daily_vol_pct": 4.95,
+    "fwd5d_pct": -4.24,
+    "fwd5d_price": 167300,
+    "fwd10d_pct": -11.1,
+    "fwd10d_price": 155300,
+    "fwd10d_max_pct": 6.18,
+    "fwd10d_max_price": 185500,
+    "fwd20d_max_pct": 6.18,
+    "fwd20d_max_price": 185500
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "ticker": "236030",
+    "name": "씨알푸드",
+    "date": "2026-06-26",
+    "current_price": 3800,
+    "ma20": 3861,
+    "ma60": 3266,
+    "ma20_gap_pct": -1.6,
+    "vol_ratio": 0.15,
+    "drawdown_pct": -11.53,
+    "daily_vol_pct": 2.72,
+    "fwd5d_pct": -28.95,
+    "fwd5d_price": 2700,
+    "fwd10d_pct": -28.95,
+    "fwd10d_price": 2700,
+    "fwd10d_max_pct": 0.0,
+    "fwd10d_max_price": 3800,
+    "fwd20d_max_pct": 0.0,
+    "fwd20d_max_price": 3800
+  }
+]

@@ -1,0 +1,22 @@
+[
+  {
+    "ticker": "469480",
+    "name": "IBKS제24호스팩",
+    "date": "2026-06-08",
+    "current_price": 3718,
+    "ma20": 3707,
+    "ma60": 3477,
+    "ma20_gap_pct": 0.3,
+    "vol_ratio": 0.66,
+    "drawdown_pct": -5.87,
+    "daily_vol_pct": 2.81,
+    "fwd5d_pct": -2.29,
+    "fwd5d_price": 3633,
+    "fwd10d_pct": -11.24,
+    "fwd10d_price": 3300,
+    "fwd10d_max_pct": 3.34,
+    "fwd10d_max_price": 3842,
+    "fwd20d_max_pct": 3.34,
+    "fwd20d_max_price": 3842
+  }
+]

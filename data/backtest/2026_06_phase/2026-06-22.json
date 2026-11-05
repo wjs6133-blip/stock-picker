@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "031330",
+    "name": "에스에이엠티",
+    "date": "2026-06-22",
+    "current_price": 16000,
+    "ma20": 16012,
+    "ma60": 10574,
+    "ma20_gap_pct": -0.07,
+    "vol_ratio": 0.62,
+    "drawdown_pct": -15.16,
+    "daily_vol_pct": 7.78,
+    "fwd5d_pct": -25.37,
+    "fwd5d_price": 11940,
+    "fwd10d_pct": -29.69,
+    "fwd10d_price": 11250,
+    "fwd10d_max_pct": -0.31,
+    "fwd10d_max_price": 15950,
+    "fwd20d_max_pct": -0.31,
+    "fwd20d_max_price": 15950
+  },
+  {
+    "ticker": "001525",
+    "name": "동양우",
+    "date": "2026-06-22",
+    "current_price": 9000,
+    "ma20": 9201,
+    "ma60": 8983,
+    "ma20_gap_pct": -2.19,
+    "vol_ratio": 0.69,
+    "drawdown_pct": -6.64,
+    "daily_vol_pct": 4.33,
+    "fwd5d_pct": -5.33,
+    "fwd5d_price": 8520,
+    "fwd10d_pct": -6.56,
+    "fwd10d_price": 8410,
+    "fwd10d_max_pct": 8.22,
+    "fwd10d_max_price": 9740,
+    "fwd20d_max_pct": 8.22,
+    "fwd20d_max_price": 9740
+  }
+]

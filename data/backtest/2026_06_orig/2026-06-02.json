@@ -1,0 +1,42 @@
+[
+  {
+    "ticker": "413300",
+    "name": "티엘엔지니어링",
+    "date": "2026-06-02",
+    "current_price": 1969,
+    "ma20": 1941,
+    "ma60": 1937,
+    "ma20_gap_pct": 1.41,
+    "vol_ratio": 0.28,
+    "drawdown_pct": -8.21,
+    "daily_vol_pct": 6.39,
+    "fwd5d_pct": 1.57,
+    "fwd5d_price": 2000,
+    "fwd10d_pct": -3.71,
+    "fwd10d_price": 1896,
+    "fwd10d_max_pct": 15.54,
+    "fwd10d_max_price": 2275,
+    "fwd20d_max_pct": 41.44,
+    "fwd20d_max_price": 2785
+  },
+  {
+    "ticker": "950170",
+    "name": "JTC",
+    "date": "2026-06-02",
+    "current_price": 4805,
+    "ma20": 4895,
+    "ma60": 4792,
+    "ma20_gap_pct": -1.84,
+    "vol_ratio": 0.49,
+    "drawdown_pct": -7.06,
+    "daily_vol_pct": 5.21,
+    "fwd5d_pct": 1.14,
+    "fwd5d_price": 4860,
+    "fwd10d_pct": 1.66,
+    "fwd10d_price": 4885,
+    "fwd10d_max_pct": 3.85,
+    "fwd10d_max_price": 4990,
+    "fwd20d_max_pct": 3.85,
+    "fwd20d_max_price": 4990
+  }
+]

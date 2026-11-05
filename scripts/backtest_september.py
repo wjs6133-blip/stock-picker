@@ -25,8 +25,8 @@ _last_day = calendar.monthrange(_y, _m)[1]
 
 BACKTEST_START  = f"{_y}-{_m:02d}-01"
 BACKTEST_END    = f"{_y}-{_m:02d}-{_last_day:02d}"
-CACHE_START     = "2024-01-01"         # 고정: MA480 등 충분한 히스토리
-CACHE_END       = "2026-12-31"         # 고정: 올해 말까지 (forward return 포함)
+CACHE_START     = "2024-01-01"                              # 고정: 충분한 히스토리
+CACHE_END       = datetime.now().strftime("%Y-%m-%d")       # 오늘까지 (동적)
 FORWARD_DAYS    = 10
 MAX_PER_DAY     = 15             # 일별 최대 후보 수
 CACHE_DIR       = Path("data/backtest/cache")
