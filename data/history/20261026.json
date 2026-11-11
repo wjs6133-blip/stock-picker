@@ -13,6 +13,14 @@
         "target_price": 3060,
         "stop_loss": 2835,
         "strategy": "기준가 2,910원 부근에서 즉시 진입하며, 20일선(2,867원) 이탈을 감안해 2,835원을 엄격한 손절선으로 설정합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.03,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 2870
       }
     },
     {
@@ -26,6 +34,14 @@
         "target_price": 5480,
         "stop_loss": 5080,
         "strategy": "20일선 지지력을 바탕으로 5,210원 수준에서 전액 진입하고, 60일선 하향 이탈 위험을 차단하기 위해 5,080원 터치 시 기계적으로 손절합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 9.21,
+        "hit_date": "2026-10-28",
+        "days_to_hit": 2,
+        "final_close": 5110
       }
     },
     {
@@ -39,7 +55,16 @@
         "target_price": 10200,
         "stop_loss": 9460,
         "strategy": "9,710원 부근에서 진입하되, 60일선(9,537원)을 하향 이탈하는 9,460원 손절선을 설정하여 철저히 리스크를 통제합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 1.75,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 8450
       }
     }
-  ]
+  ],
+  "performance_checked": true
 }
