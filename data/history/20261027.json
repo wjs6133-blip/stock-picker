@@ -13,6 +13,14 @@
         "target_price": 23500,
         "stop_loss": 21800,
         "strategy": "기준가 22,350원 부근에서 진입하고 20일 이평선(22,170원) 이탈 여부를 주시하며 손절 라인을 타이트하게 관리합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 6.49,
+        "hit_date": "2026-11-02",
+        "days_to_hit": 4,
+        "final_close": 20350
       }
     },
     {
@@ -26,6 +34,14 @@
         "target_price": 3880,
         "stop_loss": 3600,
         "strategy": "3,695원 시초가 이하 분할 매수로 접근하며 20일선(3,628원) 붕괴 시 즉각적인 리스크 관리를 실행합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 9.34,
+        "hit_date": "2026-10-28",
+        "days_to_hit": 1,
+        "final_close": 3490
       }
     },
     {
@@ -39,7 +55,16 @@
         "target_price": 2140,
         "stop_loss": 1980,
         "strategy": "20일선 부근 2,030~2,035원 구간에서 1차 매수 후 60일선(1,985원) 바로 아래를 손절가로 설정해 손익비를 극대화합니다."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": false,
+        "max_return_pct": 0.49,
+        "hit_date": null,
+        "days_to_hit": null,
+        "final_close": 1744
       }
     }
-  ]
+  ],
+  "performance_checked": true
 }
