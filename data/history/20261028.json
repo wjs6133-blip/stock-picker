@@ -13,6 +13,14 @@
         "target_price": 23350,
         "stop_loss": 21650,
         "strategy": "22,200원 부근에서 20일선 지지 확인 시 즉시 1차 진입하고, 장중 하회 시 22,000원 선에서 분할 매수 완료."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 7.21,
+        "hit_date": "2026-10-30",
+        "days_to_hit": 2,
+        "final_close": 20050
       }
     },
     {
@@ -26,6 +34,14 @@
         "target_price": 30150,
         "stop_loss": 27950,
         "strategy": "20일선 지지 라인인 28,600~28,700원 구간에서 비중의 70%를 선취매하고 29,000원 돌파 시 불타기 매수."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 9.41,
+        "hit_date": "2026-10-29",
+        "days_to_hit": 1,
+        "final_close": 23650
       }
     },
     {
@@ -39,7 +55,16 @@
         "target_price": 27800,
         "stop_loss": 25750,
         "strategy": "현재가 26,450원에서 1차 매수 후 20일선 상향 돌파 시 즉시 추가 매수하여 목표가 5% 달성 시 전량 차익 실현."
+      },
+      "performance": {
+        "checked": true,
+        "hit_target": true,
+        "max_return_pct": 13.42,
+        "hit_date": "2026-11-02",
+        "days_to_hit": 3,
+        "final_close": 26450
       }
     }
-  ]
+  ],
+  "performance_checked": true
 }
