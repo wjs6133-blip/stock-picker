@@ -1,8 +1,8 @@
 {
-  "date": "20261124",
-  "updated_at": "2026-11-24 23:41",
-  "market_trend": "neutral",
-  "goal_pct": 5,
+  "date": "20261125",
+  "updated_at": "2026-11-25 23:24",
+  "market_trend": "bearish",
+  "goal_pct": 3,
   "candidates_count": 0,
   "message": "오늘은 조건을 충족하는 종목이 없습니다.",
   "recommendations": []
